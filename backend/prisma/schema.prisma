@@ -6,10 +6,143 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// --- Entidades Maestras (Asumimos provienen de fuente externa o seeding inicial) ---
+
+// Representa una carrera universitaria
+model Carrera {
+  id       Int        @id @default(autoincrement())
+  nombre   String     @unique
+  semestres Semestre[] // Relación 1:N con Semestre
+}
+
+// Representa un nivel dentro de una carrera (e.g., 1ro, 5to)
+model Semestre {
+  id           Int          @id @default(autoincrement())
+  numero       Int          // Número del semestre (e.g., 1, 5, 10)
+  carreraId    Int          @map("carrera_id") // Columna FK en la DB
+  carrera      Carrera      @relation(fields: [carreraId], references: [id]) // Relación N:1 con Carrera
+  asignaturas Asignatura[] // Relación 1:N con Asignatura
+
+  // Asegura que no haya dos semestres con el mismo número dentro de la misma carrera
+  @@unique([carreraId, numero])
+}
+
+// Representa una materia (e.g., "Ingeniería de Software")
+model Asignatura {
+  id         Int        @id @default(autoincrement())
+  codigo     String     @unique // Código único de la asignatura (e.g., "ECIN00609")
+  nombre     String
+  semestreId Int        @map("semestre_id") // Columna FK en la DB
+  semestre   Semestre   @relation(fields: [semestreId], references: [id]) // Relación N:1 con Semestre
+  paralelos Paralelo[] // Relación 1:N con Paralelo
+}
+
+// Representa un docente o ayudante
+model Profesor {
+  id                 Int                       @id @default(autoincrement())
+  nombre             String
+  tipoContrato       String                    @map("tipo_contrato") // e.g., 'tiempo_completo', 'por_hora', 'Ayudante'
+  paralelos         Paralelo[] // Relación 1:N con Paralelo (un profesor dicta varios paralelos)
+  // Relación M:N con BloqueHorario para la disponibilidad
+  bloquesDisponibles ProfesorBloqueDisponible[] @relation("ProfesorBloqueDisponibleProfesor")
+}
+
+// Representa un espacio físico para clases
+model Sala {
+  id           Int              @id @default(autoincrement())
+  nombre       String           @unique
+  capacidad    Int              // Capacidad de la sala (número de personas)
+  asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (una sala se usa en varias clases/bloques)
+}
+
+// Representa un segmento de tiempo en un día (e.g., "Martes C")
+model BloqueHorario {
+  id           Int              @id @default(autoincrement())
+  dia          String           // e.g., "Lunes", "Martes"
+  nombre       String           // e.g., "A", "B", "C", "D", "E", "F"
+  horaInicio   DateTime         @map("hora_inicio")
+  horaFin      DateTime         @map("hora_fin")
+  asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un bloque tiene varias clases/salas)
+  // Relación M:N con Profesor para la disponibilidad
+  profesoresDisponibles ProfesorBloqueDisponible[] @relation("ProfesorBloqueDisponibleBloque")
+
+  // Asegura que un día y nombre de bloque sean únicos (e.g., solo un "Lunes A")
+  @@unique([dia, nombre])
+}
+
+// Tabla de enlace para la relación M:N entre Profesor y BloqueHorario (Disponibilidad)
+model ProfesorBloqueDisponible {
+  id             Int           @id @default(autoincrement())
+  profesorId     Int           @map("profesor_id")
+  bloqueHorarioId Int           @map("bloque_horario_id")
+
+  // Relaciones N:1 con Profesor y BloqueHorario
+  // Los nombres entre paréntesis distinguen las dos relaciones con las mismas tablas en la otra punta
+  profesor       Profesor      @relation("ProfesorBloqueDisponibleProfesor", fields: [profesorId], references: [id])
+  bloqueHorario BloqueHorario @relation("ProfesorBloqueDisponibleBloque", fields: [bloqueHorarioId], references: [id])
+
+  // Asegura que un profesor solo tenga marcado un bloque como disponible una vez
+  @@unique([profesorId, bloqueHorarioId])
+}
+
+// Representa el tipo de paralelo (e.g., "Cátedra", "Ayudantía", "Laboratorio")
+model TipoParalelo {
+  id       Int        @id @default(autoincrement())
+  nombre   String     @unique
+  paralelos Paralelo[] // Relación 1:N con Paralelo
+}
+
+
+// Representa una instancia específica de una Asignatura (e.g., "Ing. Software - NRC 12492 - C1")
+// Esta es la entidad que se "arrastra" en la UI
+model Paralelo {
+  id                Int                @id @default(autoincrement())
+  asignaturaId      Int                @map("asignatura_id") // Columna FK en la DB
+  asignatura        Asignatura         @relation(fields: [asignaturaId], references: [id]) // Relación N:1 con Asignatura
+  tipoParaleloId    Int                @map("tipo_paralelo_id") // Columna FK en la DB
+  tipoParalelo      TipoParalelo       @relation(fields: [tipoParaleloId], references: [id]) // Relación N:1 con TipoParalelo
+  profesorId        Int?               @map("profesor_id") // Columna FK en la DB - Puede ser opcional (nullable) inicialmente
+  profesor          Profesor?          @relation(fields: [profesorId], references: [id]) // Relación N:1 con Profesor (nullable)
+  nrc               String             @unique // Número de Registro del Curso (NRC) - Debe ser único globalmente
+  capacidadEstimada Int?               @map("capacidad_estimada") // Capacidad estimada de estudiantes para este paralelo (nullable)
+
+  asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un paralelo puede tener varias clases en diferentes bloques/salas)
+}
+
+// --- Entidades Gestionadas Principalmente en Tu Aplicación (La tabla de "hechos" del horario) ---
+
+// Representa una instancia programada: Este Paralelo se enseña en esta Sala en este BloqueHorario
+// durante este PeriodoAcademico. Conceptualmente, una "Clase".
+model AsignacionHorario {
+  id               Int               @id @default(autoincrement())
+  paraleloId       Int               @map("paralelo_id") // Columna FK en la DB
+  paralelo         Paralelo          @relation(fields: [paraleloId], references: [id]) // Relación N:1 con Paralelo
+  salaId           Int               @map("sala_id") // Columna FK en la DB
+  sala             Sala              @relation(fields: [salaId], references: [id]) // Relación N:1 con Sala
+  bloqueHorarioId  Int               @map("bloque_horario_id") // Columna FK en la DB
+  bloqueHorario    BloqueHorario     @relation(fields: [bloqueHorarioId], references: [id]) // Relación N:1 con BloqueHorario
+  periodoAcademicoId Int             @map("periodo_academico_id") // Columna FK en la DB
+  periodoAcademico PeriodoAcademico @relation(fields: [periodoAcademicoId], references: [id]) // Relación N:1 con PeriodoAcademico
+
+  // Restricción de unicidad compuesta: Asegura que un Paralelo no esté en la misma Sala, mismo Bloque, mismo Periodo más de una vez.
+  @@unique([paraleloId, salaId, bloqueHorarioId, periodoAcademicoId])
+
+  // Opcional: Si necesitas un índice rápido para buscar por Periodo Académico
+  // @@index([periodoAcademicoId])
+}
+
+// Representa un ciclo académico real (e.g., "2023-2")
+model PeriodoAcademico {
+  id           Int              @id @default(autoincrement())
+  nombre       String           @unique // Nombre del periodo (e.g., "Segundo Semestre 2023")
+  fechaInicio  DateTime         @map("fecha_inicio")
+  fechaFin     DateTime         @map("fecha_fin")
+  asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un periodo tiene muchas clases)
 }
