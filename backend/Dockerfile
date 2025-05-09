@@ -1,58 +1,45 @@
-# --- Stage 1: Build the NestJS application ---
-FROM node:18-slim as builder
-
-# Instala pnpm globalmente
+# ---- Base Node ----
+FROM node:18-alpine AS base
+# Instalar pnpm globalmente
 RUN npm install -g pnpm
 
-# Habilitar Corepack para usar PNPM (si el packageManager está definido en package.json)
-RUN corepack enable
-
-# Establece el directorio de trabajo
+# ---- Dependencies ----
+FROM base AS deps
 WORKDIR /app
-
-# Copia archivos de definición de dependencias (package.json y pnpm-lock.yaml)
+# Copiar solo los archivos de manifiesto para cachear la instalación de dependencias
 COPY package.json pnpm-lock.yaml ./
-
-# Instala las dependencias usando pnpm
+# Instalar dependencias, incluyendo las de desarrollo para la construcción
 RUN pnpm install --frozen-lockfile
 
-# Copia el resto del código fuente
+# ---- Builder ----
+FROM base AS builder
+WORKDIR /app
+# Copiar dependencias instaladas y el código fuente
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Construye la aplicación NestJS
+# Construir la aplicación (no generamos el cliente Prisma aquí)
 RUN pnpm run build
 
-# --- Stage 2: Imagen final para producción (más ligera) ---
-FROM node:18-slim
-
-# Establece el directorio de trabajo
+# ---- Production Image ----
+FROM base AS production
+ENV NODE_ENV production
 WORKDIR /app
 
-# Habilitar Corepack en la imagen final si lo necesitas para correr scripts
-# RUN corepack enable # Descomentar si tus CMD o entrypoint usan pnpm/yarn directamente
-
-# Copia los archivos necesarios desde la etapa de 'builder'
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+# Copiar esquema de Prisma y archivos de migraciones
 COPY --from=builder /app/prisma ./prisma
 
-# Opcional: Copia el .env si tu app lo lee en runtime (cuidado con secretos)
-# Si tu app lee DATABASE_URL u otras variables del ENV del contenedor (lo ideal con docker),
-# no necesitas copiar el .env file dentro de la imagen.
-# Si tu app lee .env file específicamente, descomenta la siguiente línea.
-# COPY --from=builder /app/.env ./.env
+# Copiar archivos de manifiesto
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
 
+# Instalar todas las dependencias (incluyendo devDependencies para poder ejecutar prisma generate)
+RUN pnpm install --frozen-lockfile
 
-# Expone el puerto en el que corre la aplicación NestJS (por defecto 3000)
+# Copiar los artefactos construidos
+COPY --from=builder /app/dist ./dist
+
+# Exponer el puerto que usa tu aplicación
 EXPOSE 3000
 
-# Define el comando por defecto para ejecutar el contenedor
-# Ejecuta el archivo main.js compilado
-CMD [ "node", "dist/main" ]
-
-# Si necesitas ejecutar migraciones al iniciar el contenedor (solo para ciertos flujos de despliegue, úsalo con precaución en prod)
-# COPY --from=builder /app/run-migrations-and-start.sh ./
-# RUN chmod +x ./run-migrations-and-start.sh
-# CMD [ "./run-migrations-and-start.sh" ]
-
+# Script de inicio: genera el cliente Prisma, ejecuta las migraciones y luego inicia la aplicación
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node dist/main.js"]
