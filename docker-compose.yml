@@ -41,13 +41,13 @@ services:
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}" # Mapea el puerto definido en .env
     # Montar el código fuente para desarrollo con hot-reloading (opcional, pero útil en dev)
-    volumes:
-      - ./backend:/app
-      - /app/node_modules # Evita que el node_modules del host (si existe) sobreescriba el del contenedor
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules # Evita que el node_modules del host (si existe) sobreescriba el del contenedor
     # Comando para iniciar el backend (usando la versión compilada dist/main.js)
     # Esto sobreescribe el CMD del Dockerfile si está presente
     # Para desarrollo con hot-reloading, usarías: command: ["pnpm", "run", "start:dev"]
-    command: [ "node", "dist/main" ]
+    command: ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
 
   # Servicio de Frontend (React/Vite con Yarn)
   frontend:
