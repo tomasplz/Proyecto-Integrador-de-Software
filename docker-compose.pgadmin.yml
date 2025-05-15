@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_horarios
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - horarios_network
+
+networks:
+  horarios_network:
+    external: true
+    name: proyecto-integrador-de-software_default
+
+volumes:
+  pgadmin_data:
