@@ -1,34 +1,29 @@
 version: '3.8'
 
 services:
-  # Servicio de Base de Datos PostgreSQL
   db:
     image: postgres:13
     container_name: postgres_horarios
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    # Variables de entorno para configurar la DB 
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
-    # Healthcheck: Verifica que la DB esté lista antes de que el backend intente conectarse.
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 10s # Espera inicial antes de empezar a chequear
+      start_period: 10s
 
-  # Servicio de Backend (NestJS con PNPM)
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend_horarios
-    # Depende de que la DB esté healthy. docker-compose esperará.
     depends_on:
       db:
         condition: service_healthy
@@ -36,10 +31,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       NODE_ENV: development # O production, staging, etc.
       # JWT_SECRET: ${JWT_SECRET}
-      # Mapeo de puertos: Host:Container. Expone el puerto interno 3000 (NestJS) a un puerto en tu máquina.
-      # Puedes usar ${BACKEND_PORT} del .env
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}" # Mapea el puerto definido en .env
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     # Montar el código fuente para desarrollo con hot-reloading (opcional, pero útil en dev)
     # volumes:
     #   - ./backend:/app
@@ -47,9 +40,8 @@ services:
     # Comando para iniciar el backend (usando la versión compilada dist/main.js)
     # Esto sobreescribe el CMD del Dockerfile si está presente
     # Para desarrollo con hot-reloading, usarías: command: ["pnpm", "run", "start:dev"]
-    command: ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+    command: ["sh", "-c", "npx prisma migrate deploy && node dist/src/main"]
 
-  # Servicio de Frontend (React/Vite con Yarn)
   frontend:
     build:
       context: ./frontend
@@ -88,6 +80,5 @@ services:
     #     - backend # El proxy necesita saber dónde está el backend
     #     - frontend # El proxy necesita saber dónde está el frontend (si no sirve directamente el build)
 
-    # Definición de los volúmenes nombrados (para persistencia)
 volumes:
-  postgres_data: # Volumen para los datos de la DB
+  postgres_data:
