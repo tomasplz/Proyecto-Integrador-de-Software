@@ -40,7 +40,7 @@ services:
     # Comando para iniciar el backend (usando la versión compilada dist/main.js)
     # Esto sobreescribe el CMD del Dockerfile si está presente
     # Para desarrollo con hot-reloading, usarías: command: ["pnpm", "run", "start:dev"]
-    command: ["sh", "-c", "npx prisma migrate deploy && node dist/src/main"]
+    command: ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
 
   frontend:
     build:
