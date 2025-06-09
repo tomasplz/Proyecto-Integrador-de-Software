@@ -8,7 +8,7 @@ Este proyecto implementa un sistema para gestionar la creación y validación de
 2. [Stack Tecnológico](#stack-tecnológico)
 3. [Estructura del Proyecto](#estructura-del-proyecto)
 4. [Prerrequisitos](#prerrequisitos)
-5. [Configuración del Entorno de Desarrollo](#configuración-del-entorno-de-desarrollo)
+5. [SETUP. Configuración del Entorno de Desarrollo](#configuración-del-entorno-de-desarrollo)
 6. [Configuración Inicial de la Base de Datos](#configuración-inicial-de-la-base-de-datos)
 7. [Ejecutar la Aplicación](#ejecutar-la-aplicación)
 8. [API del Backend](#api-del-backend)
@@ -57,7 +57,7 @@ Asegúrate de tener instalados en tu sistema:
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-## 5. Configuración del Entorno de Desarrollo
+## 5. SETUP. Configuración del Entorno de Desarrollo
 
 ### Clonar el Repositorio
 
