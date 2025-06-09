@@ -35,7 +35,7 @@ Este proyecto universitario tiene como objetivo desarrollar un software que asis
 Proyecto-Integrador-de-Software/
 ├── backend/                    # Código fuente del backend NestJS
 │   ├── src/                   # Módulos, servicios, controladores, etc.
-│   ├── prisma/               # Archivo schema.prisma y migraciones
+│   ├── prisma/               # Archivo schema.prisma, migraciones, scripts de obtención/preparación de datos (e.g., test.fetch.ts) y archivos de datos JSON para el seeding (e.g., bloques_data.json)
 │   ├── ...                   # Otros archivos de configuración
 │   └── Dockerfile            # Dockerfile para construir la imagen del backend
 ├── frontend/                  # Código fuente del frontend React/Vite
@@ -82,6 +82,25 @@ DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTG
 # Puertos de los servicios
 BACKEND_PORT=3000
 FRONTEND_PORT=80
+
+# Configuración de JWT (descomentar si se usa autenticación)
+# JWT_SECRET=your_jwt_secret_here
+
+# URLs y Tokens para obtener datos maestros de APIs externas (usado por prisma/test.fetch.ts)
+API_URL_BLOQUES="tu_api_url_bloques_aqui"
+API_TOKEN_BLOQUES="tu_api_token_bloques_aqui"
+
+API_URL_DEMANDA="tu_api_url_demanda_aqui"
+API_TOKEN_DEMANDA="tu_api_token_demanda_aqui"
+
+API_URL_SEMESTRES="tu_api_url_semestres_aqui"
+API_TOKEN_SEMESTRES="tu_api_token_semestres_aqui"
+
+API_URL_SALAS="tu_api_url_salas_aqui"
+API_TOKEN_SALAS="tu_api_token_salas_aqui"
+
+API_URL_PROFESORES="tu_api_url_profesores_aqui"
+API_TOKEN_PROFESORES="tu_api_token_profesores_aqui"
 ```
 
 ### Construir y Levantar los Contenedores
@@ -92,16 +111,29 @@ docker-compose up --build -d
 
 ## 6. Configuración Inicial de la Base de Datos
 
-### Aplicar Migraciones
+### a. Obtener Datos para Seeding (Opcional)
+
+Si necesitas cargar datos iniciales desde APIs externas (configuradas en tu `.env`), ejecuta el script `test.fetch.ts`. Este script descargará los datos y los guardará como archivos JSON en la carpeta `backend/prisma/` (e.g., `bloques_data.json`, `demanda_data.json`, etc.), que luego serán utilizados por el script de seeding.
 
 ```bash
-docker-compose exec backend npx prisma migrate dev --name initial_schema
+docker-compose exec backend pnpm exec ts-node prisma/test.fetch.ts
+```
+**Nota:** Asegúrate de que `ts-node` esté disponible en el contenedor del backend o ajusta el comando según sea necesario para ejecutar el script TypeScript.
+
+### b. Aplicar Migraciones
+
+Una vez que los contenedores estén en ejecución, aplica las migraciones de Prisma para crear la estructura de la base de datos:
+
+```bash
+docker-compose exec backend pnpm exec prisma migrate dev --name initial_schema
 ```
 
-### Ejecutar Seeding
+### c. Ejecutar Seeding
+
+Después de aplicar las migraciones, puedes poblar la base de datos con datos iniciales (ya sea los descargados por `test.fetch.ts` o los que tengas localmente en formato JSON en `backend/prisma/`):
 
 ```bash
-docker-compose exec backend npx prisma db seed
+docker-compose exec backend pnpm exec prisma db seed
 ```
 
 ## 7. Ejecutar la Aplicación
@@ -145,7 +177,14 @@ La aplicación estará disponible en:
 
 ## 10. Consideraciones sobre Datos Maestros
 
-Los datos maestros (Carreras, Semestres, Asignaturas, etc.) se cargan inicialmente vía seeding. En producción, deberían sincronizarse con la base de datos central de la universidad.
+Los datos maestros (Carreras, Semestres, Asignaturas, Profesores, Salas, Bloques Horarios, etc.) se cargan inicialmente mediante el proceso de seeding (`pnpm exec prisma db seed`).
+Este proceso utiliza archivos JSON ubicados en la carpeta `backend/prisma/`.
+
+Estos archivos JSON pueden ser:
+1.  **Creados manualmente o preexistentes** en el proyecto.
+2.  **Generados dinámicamente** por el script `backend/prisma/test.fetch.ts`. Este script se conecta a APIs externas (cuyas URLs y tokens se configuran en el archivo `.env`) para descargar los datos más recientes y guardarlos en los archivos JSON correspondientes.
+
+En un entorno de producción, la estrategia para mantener actualizados estos datos maestros debería ser revisada, posiblemente implementando una sincronización periódica o en tiempo real con la base de datos central de la universidad o las APIs fuente.
 
 ## 11. Despliegue
 
