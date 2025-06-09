@@ -1,30 +1,32 @@
+FROM node:20-slim AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-FROM node:18-alpine AS base
-RUN npm install -g pnpm
-
-
-FROM base AS deps
+FROM base AS dependencies_stage
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package*.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-
-FROM base AS builder
+FROM base AS build_stage
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY --from=dependencies_stage /app/node_modules ./node_modules
+RUN pnpm exec prisma generate
+RUN chown -R node /app/node_modules 
 RUN pnpm run build
 
-
-FROM base AS production
-ENV NODE_ENV production
+FROM base AS deploy
 WORKDIR /app
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-COPY --from=builder /app/dist ./dist
-EXPOSE 3000
 
+COPY --from=build_stage /app/dist ./dist
 
-CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node dist/main.js"]
+COPY --from=build_stage /app/package.json ./package.json
+COPY --from=build_stage /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=build_stage /app/tsconfig.json ./tsconfig.json
+COPY --from=build_stage /app/prisma ./prisma
+
+COPY --from=build_stage /app/node_modules ./node_modules
+
+RUN pnpm install -g ts-node
+CMD [ "node", "dist/src/main.js" ]
