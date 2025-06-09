@@ -36,19 +36,21 @@ model Semestre {
 
 // Representa una materia (e.g., "Ingeniería de Software")
 model Asignatura {
-  id         Int        @id @default(autoincrement())
-  codigo     String     @unique // Código único de la asignatura (e.g., "ECIN00609")
+  id         Int      @id @default(autoincrement())
+  codigo     String   // El código ya no es globalmente único por sí solo
   nombre     String
-  semestreId Int        @map("semestre_id") // Columna FK en la DB
-  semestre   Semestre   @relation(fields: [semestreId], references: [id]) // Relación N:1 con Semestre
-  paralelos Paralelo[] // Relación 1:N con Paralelo
+  semestreId Int
+  semestre   Semestre @relation(fields: [semestreId], references: [id])
+  paralelos Paralelo[]
+
+  @@unique([codigo, semestreId]) // Ahora la combinación es única
 }
 
 // Representa un docente o ayudante
 model Profesor {
   id                 Int                       @id @default(autoincrement())
+  rut                String                    @unique
   nombre             String
-  tipoContrato       String                    @map("tipo_contrato") // e.g., 'tiempo_completo', 'por_hora', 'Ayudante'
   paralelos         Paralelo[] // Relación 1:N con Paralelo (un profesor dicta varios paralelos)
   // Relación M:N con BloqueHorario para la disponibilidad
   bloquesDisponibles ProfesorBloqueDisponible[] @relation("ProfesorBloqueDisponibleProfesor")
@@ -58,7 +60,8 @@ model Profesor {
 model Sala {
   id           Int              @id @default(autoincrement())
   nombre       String           @unique
-  capacidad    Int              // Capacidad de la sala (número de personas)
+  capacidad    Int?
+  sede         String
   asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (una sala se usa en varias clases/bloques)
 }
 
@@ -92,7 +95,7 @@ model ProfesorBloqueDisponible {
   @@unique([profesorId, bloqueHorarioId])
 }
 
-// Representa el tipo de paralelo (e.g., "Cátedra", "Ayudantía", "Laboratorio")
+// Representa el tipo de paralelo (e.g., "Catedra", "Ayudantia", "Laboratorio")
 model TipoParalelo {
   id       Int        @id @default(autoincrement())
   nombre   String     @unique
@@ -104,16 +107,19 @@ model TipoParalelo {
 // Esta es la entidad que se "arrastra" en la UI
 model Paralelo {
   id                Int                @id @default(autoincrement())
+  nombre            String
   asignaturaId      Int                @map("asignatura_id") // Columna FK en la DB
   asignatura        Asignatura         @relation(fields: [asignaturaId], references: [id]) // Relación N:1 con Asignatura
   tipoParaleloId    Int                @map("tipo_paralelo_id") // Columna FK en la DB
   tipoParalelo      TipoParalelo       @relation(fields: [tipoParaleloId], references: [id]) // Relación N:1 con TipoParalelo
   profesorId        Int?               @map("profesor_id") // Columna FK en la DB - Puede ser opcional (nullable) inicialmente
   profesor          Profesor?          @relation(fields: [profesorId], references: [id]) // Relación N:1 con Profesor (nullable)
-  nrc               String             @unique // Número de Registro del Curso (NRC) - Debe ser único globalmente
+  nrc               String?             @unique // Número de Registro del Curso (NRC) - Debe ser único globalmente
   capacidadEstimada Int?               @map("capacidad_estimada") // Capacidad estimada de estudiantes para este paralelo (nullable)
 
   asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un paralelo puede tener varias clases en diferentes bloques/salas)
+
+  @@unique([asignaturaId, tipoParaleloId, nombre], name: "asignatura_tipo_nombre_paralelo_unico")
 }
 
 // --- Entidades Gestionadas Principalmente en Tu Aplicación (La tabla de "hechos" del horario) ---
@@ -144,5 +150,6 @@ model PeriodoAcademico {
   nombre       String           @unique // Nombre del periodo (e.g., "Segundo Semestre 2023")
   fechaInicio  DateTime         @map("fecha_inicio")
   fechaFin     DateTime         @map("fecha_fin")
+  codigoBanner   String?        @unique
   asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un periodo tiene muchas clases)
 }
