@@ -1,0 +1,62 @@
+[
+    {
+        "nombre": "SB",
+        "horario": null,
+        "minuto_inicio": null,
+        "minuto_termino": null
+    },
+    {
+        "nombre": "A",
+        "horario": "08:10 - 09:40",
+        "minuto_inicio": 470,
+        "minuto_termino": 593
+    },
+    {
+        "nombre": "B",
+        "horario": "09:55 - 11:25",
+        "minuto_inicio": 593,
+        "minuto_termino": 695
+    },
+    {
+        "nombre": "C",
+        "horario": "11:40 - 13:10",
+        "minuto_inicio": 695,
+        "minuto_termino": 790
+    },
+    {
+        "nombre": "C2",
+        "horario": "13:10 - 14:30",
+        "minuto_inicio": 790,
+        "minuto_termino": 868
+    },
+    {
+        "nombre": "D",
+        "horario": "14:30 - 16:00",
+        "minuto_inicio": 868,
+        "minuto_termino": 970
+    },
+    {
+        "nombre": "E",
+        "horario": "16:15 - 17:45",
+        "minuto_inicio": 970,
+        "minuto_termino": 1075
+    },
+    {
+        "nombre": "F",
+        "horario": "18:00 - 19:30",
+        "minuto_inicio": 1075,
+        "minuto_termino": 1180
+    },
+    {
+        "nombre": "G",
+        "horario": "19:45 - 21:15",
+        "minuto_inicio": 1180,
+        "minuto_termino": 1285
+    },
+    {
+        "nombre": "H",
+        "horario": "21:30 - 23:00",
+        "minuto_inicio": 1285,
+        "minuto_termino": 1439
+    }
+]

@@ -1,0 +1,2242 @@
+[
+    {
+        "nombre": "CQB E3-206",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB D-103",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Ñ1-101C",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF HI- NO HAY",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF AD-105",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF SALA R-58H",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X9-107",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y3-405",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G6-045",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-047",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Ñ1-204",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G6-050",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-052",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-003",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G6-046",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-049",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-010",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G6-054",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-048",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X-306 (Videoconferencia)",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-053",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-051",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB D1-028",
+        "capacidad": 47,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-056",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G6-055",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF A-209",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF O1-203",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-HALL_A",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQBO X-HALL_B",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB B2-031",
+        "capacidad": 60,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X-AUDITORIO",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB SALA C-G6",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF U1-105",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB Y1-003",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X6-201",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-061",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB Y1-004",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB N-116",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-44",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB R-040",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-008B",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF V2-Rob-1",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB R-017",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-038",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB J1-307",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-031",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-027",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF H-01",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB R-020",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-009",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-010",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-001",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB Y2-105",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-033",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-015",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-016",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB A-101",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-030",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X12-208",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB U6-205",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB R-061",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB E1-207",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X-106",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-064",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB D2-202",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y3-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-103",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-013",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-060",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF AT-004",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF AT-003",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB NO HAY G5",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF N.N",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF J2-300",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF W-210",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G-012",
+        "capacidad": 100,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF AT-001",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-043",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF NO HAY G",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB NO HAY G",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB B2-028",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF G1G2-302",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB B1-035",
+        "capacidad": 78,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB I-202",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB E1-208",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R- H.PROTE",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB D2-303",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF N-004",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X9-106",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-104",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF W-205",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Terreno",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-102",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB E1-102",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF D-106",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF O1-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-104",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-012",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-015",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-024",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB E2-120",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-039",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB K-207",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-022",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X2-110",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-050",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X-103",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF SALA R-59H",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G1-008",
+        "capacidad": 70,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G-011",
+        "capacidad": 100,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF D-000",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF P-223",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y3-102",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF A-000",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF Y2-207",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB M3-004",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF V3-R-Aum",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB M-002",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-020",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-221",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB K-105",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-051",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-040",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X2-001",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-023",
+        "capacidad": 48,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF O1-213",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-017",
+        "capacidad": 49,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-027",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB D2-302",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X-208",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X-212",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB M3-003",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X12-106",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-017",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-046",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J-232",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF W-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R- NO HAY",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-058H",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-015",
+        "capacidad": 49,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB E1-204",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y1-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF G1G2-301",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB D2-103",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X-104",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF ON-LINE",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB SALA C",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-021",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB M-003",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X2-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-021",
+        "capacidad": 48,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-042",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X10-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-063",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB SALA G1",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB E1-101",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB J2-003",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X1-030",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G1-009",
+        "capacidad": 70,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB D2-203",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF P-222",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-4133",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF X1-110",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-206",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X-207",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB SALA PROYECTO",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF U6-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-049",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-038",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-006",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB M1-002",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-PDTE",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Oficina del profesor",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y3-404",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB SALA G",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF U6-000",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-7300",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB G5-036",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF X10-346",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-107",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF J2-302",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-008A",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X9-305",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF T-003",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-011",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-64",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-057",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-7301",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB J2-007",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF SALA-H",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-306",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-030",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-036",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-101B",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-302",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G3-001",
+        "capacidad": 25,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF J2-515",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF SALA R-",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB NO HAY D1",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB D1-026",
+        "capacidad": 46,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-029",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X6-202",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF N-116",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X2-220",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-209",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF P-301",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-301",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF Ñ1-105B",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF SALA AFTA",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-315",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF H1-209",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-001",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-047",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF H3-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB C-202",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X6-110",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB E1-104",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF G1G2-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF AT-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-020",
+        "capacidad": 42,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G4-014",
+        "capacidad": 36,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y1-111",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB N.N",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G1-006",
+        "capacidad": 52,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X12-206",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-004",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF D-4131",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF X4-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-054",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U1-107",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-045",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB SALA G5",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB D1-025",
+        "capacidad": 71,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF U9-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB I-117",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB SALA D1",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF SALA-HA",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-034",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P1-318",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF P4-000",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-002",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF X8-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF G1G2-102",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-58",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB G4-022",
+        "capacidad": 48,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G2-004",
+        "capacidad": 60,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB X1-029",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB M-004",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF D-7302",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF J2-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB D1-027",
+        "capacidad": 40,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G4-018",
+        "capacidad": 42,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-007",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-204",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y3-103",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-108",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-4302",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-048",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-4301",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB NO HAY G1",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X7-208",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF N-000",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB M3-005",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X7-301",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF W-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF W-213",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-105",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X6-200",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X10-000",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X7-302",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF X9-107",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB G3-003",
+        "capacidad": 30,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB Salón Auditorio Teología",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X2-201",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB G5-038",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-044",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y2-107",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y1-003",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y1-004",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X9-306",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF W-209",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y1-005",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ3-109",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-61",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-065",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB I-207",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB E1-202",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-028",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB Uso Académico Cs Basicas",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF P-305",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF A-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF H1-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-4134",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-018",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G3-002",
+        "capacidad": 25,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB J2-003 (Lab 3 IPRYMA)",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-?",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-100",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G3-02A",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF W-202",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X2-102",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-041",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J1-314",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB J2-009 (Lab)",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB Lab",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF O1-205",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-008B",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-053",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB I-206",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-025",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF G1G2-002",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF J2-205",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-005",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB J2-008",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB B2-033",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X3-209",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB E3-209",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-035",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB E3-208",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB NO HAY G4",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-058",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U4-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF H2-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-59",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB E1-201",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-62",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB SALA B2",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB SALA D2",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Ñ1-202",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U6-205",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-019",
+        "capacidad": 42,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB J2-006",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-009",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-212",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-019",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB NO HAY G3",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF SALA-HI",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X12-208",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-001 (Lab 1 IPRYMA)",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "SIN SALA ASIGNADA",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G-010",
+        "capacidad": 100,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Ñ3-301",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-032",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-062",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF J2-303",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-60",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB E3-101",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF W-111",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-333 (Videoconferencia)",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB B2-032",
+        "capacidad": 60,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Liemun",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P-308",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-016",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-202",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-101A",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y1-104",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-052",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB SALA G2",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF N-009",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB E2-206",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y2-105",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-001",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-105A",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF O1-013",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U4-103",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF N-013",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-009",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-63",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB E1-203",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF H1-211",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-4130",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF X7-116",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U7-206",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB I-201",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB B1-034",
+        "capacidad": 108,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB E1-206",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-037",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-059",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X4-100",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF O",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB M-005",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF SALA V-",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-056",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB E3-103",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-033",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-103",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "SALA R-",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P1-226",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB Y-103",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y1-006",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Y1-001",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB SALA G4",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF D-105",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R- MESA",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF R-33",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB C-101",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-026",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-055",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G4-016",
+        "capacidad": 49,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB G-013",
+        "capacidad": 100,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "SALA DE PROYECTOS ",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF J2-301",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U1-101",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF O-105",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF U7-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF Ñ1-102",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF J2-306",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF P1-224",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-329 (OFICINA)",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB ",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "CQB G5-037",
+        "capacidad": null,
+        "sede": "SINSEDE"
+    },
+    {
+        "nombre": "ANF O1-202",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF V3-Rob-2",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G2-005",
+        "capacidad": 150,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-004",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF G-33",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB X-205",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF R-005",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF V2-Univ.",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF I-112",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U1-109",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-031",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-132",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF D-104",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF SALA G4",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB D2-102",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X6-201",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF B-GIMN",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF U7-106",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X9-202",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF V2-105",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB G1-007",
+        "capacidad": 100,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB ON-LINE",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB SALA G3",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF X12-207",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-014",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF O1-206",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF G1G2-001",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF R-023",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "CQB J2-008 (Lab)",
+        "capacidad": 0,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB NO HAY G2",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB NO HAY C",
+        "capacidad": null,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "CQB D1-024",
+        "capacidad": 71,
+        "sede": "COQUIMBO"
+    },
+    {
+        "nombre": "ANF Y1-309",
+        "capacidad": 10,
+        "sede": "ANTOFAGASTA"
+    },
+    {
+        "nombre": "ANF X2-111",
+        "capacidad": null,
+        "sede": "ANTOFAGASTA"
+    }
+]

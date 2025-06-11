@@ -1,0 +1,935 @@
+[
+    {
+        "rut": "133212892",
+        "courseOffer": [
+            "ECIN-00063"
+        ],
+        "name": "ERNESTO ALFONSO PIWONKA CARRASCO",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "107089748",
+        "courseOffer": [
+            "ECIN-00077"
+        ],
+        "name": "KARINA PILAR ROJAS CONTRERAS",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "176256648",
+        "courseOffer": [
+            "ECIN-00084",
+            "ECIN-00512",
+            "ECIN-00519",
+            "ECIN-00520",
+            "ECIN-00462"
+        ],
+        "name": "FELIPE ANDRES PENA GRAF",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "183570854",
+        "courseOffer": [
+            "ECIN-00098",
+            "ECIN-00099",
+            "ECIN-00761"
+        ],
+        "name": "JENNIFER CRISTAL MORALES NORAMBUENA",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "177131474",
+        "courseOffer": [
+            "ECIN-00200",
+            "ECIN-00201"
+        ],
+        "name": "FERNANDO ANDRES REGODECEVES LEIVA",
+        "institutionalEmail": "fernando.regodeceves@ucn.cl",
+        "phone": "983938501",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "184502976",
+        "courseOffer": [
+            "ECIN-00100",
+            "ECIN-00337",
+            "ECIN-00261",
+            "ECIN-00408",
+            "ECIN-00115"
+        ],
+        "name": "ALEJANDRO ALBERTO PAOLINI GODOY",
+        "institutionalEmail": "alejandro.paolini@ucn.cl",
+        "phone": "+56976168868",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 4,
+        "availability": []
+    },
+    {
+        "rut": "188685064",
+        "courseOffer": [
+            "ECIN-00200",
+            "ECIN-00201",
+            "ECIN-00618",
+            "ECIN-00662"
+        ],
+        "name": "DIEGO IGNACIO RAMIREZ FAJARDO",
+        "institutionalEmail": null,
+        "phone": "962371113",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "126478402",
+        "courseOffer": [
+            "ECIN-00217",
+            "ECIN-00515",
+            "ECIN-00560"
+        ],
+        "name": "PATRICIO ALEJANDRO ROJAS CARRASCO",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "119355885",
+        "courseOffer": [
+            "ECIN-00706",
+            "ECIN-00404",
+            "ECIN-00564"
+        ],
+        "name": "CLAUDIA MARCELA CONTRERAS GAHONA",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "133288589",
+        "courseOffer": [
+            "ECIN-00301"
+        ],
+        "name": "GONZALO ALEXIS HONORES VEGA",
+        "institutionalEmail": "gonzalo.honores@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 4,
+        "availability": []
+    },
+    {
+        "rut": "128401768",
+        "courseOffer": [
+            "ECIN-00100",
+            "ECIN-08606",
+            "ECIN-00115"
+        ],
+        "name": "ERIC GYSBERT ROSS CORTES",
+        "institutionalEmail": "eross@ucn.cl",
+        "phone": "+56995058076",
+        "isAvailable": true,
+        "maxSectionsPerWeek": 3,
+        "availability": [
+            "MARTES-A",
+            "MARTES-D",
+            "MARTES-E",
+            "MIERCOLES-A",
+            "MIERCOLES-C",
+            "MIERCOLES-D",
+            "MIERCOLES-E",
+            "JUEVES-C",
+            "JUEVES-D",
+            "JUEVES-E",
+            "JUEVES-A",
+            "JUEVES-B",
+            "MARTES-B",
+            "MARTES-C",
+            "MARTES-F"
+        ]
+    },
+    {
+        "rut": "204568138",
+        "courseOffer": [
+            "ECIN-00336"
+        ],
+        "name": "AGUSTÍN ANDRÉS OLIVARES SOTO",
+        "institutionalEmail": null,
+        "phone": "996428083",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "162117122",
+        "courseOffer": [
+            "ECIN-00802",
+            "ECIN-00700",
+            "ECIN-00700"
+        ],
+        "name": "NICOLAS EDUARDO PALACIOS AVILÉS",
+        "institutionalEmail": "nicolas.palacios@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 4,
+        "availability": []
+    },
+    {
+        "rut": "180028943",
+        "courseOffer": [
+            "ECIN-00362"
+        ],
+        "name": "DIEGO FERNANDO CASTILLO OSSANDON",
+        "institutionalEmail": "diego.castillo@ucn.cl",
+        "phone": null,
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "95997031",
+        "courseOffer": [
+            "ECIN-00337",
+            "ECIN-00408",
+            "ECIN-01331"
+        ],
+        "name": "ARIEL ENRIQUE AREYUNA SANTIAGO",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "183121960",
+        "courseOffer": [
+            "ECIN-00337",
+            "ECIN-00408",
+            "ECIN-00663"
+        ],
+        "name": "ERNESTO ANDRES AREYUNA CALABRESE",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "143478564",
+        "courseOffer": [
+            "ECIN-00402",
+            "ECIN-00606",
+            "ECIN-00402"
+        ],
+        "name": "JOSE ANTONIO CASTILLO VENENCIANO",
+        "institutionalEmail": "jacastillo@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 4,
+        "availability": []
+    },
+    {
+        "rut": "18953311K",
+        "courseOffer": [
+            "ECIN-00407",
+            "ECIN-00416",
+            "ECIN-00621",
+            "ECIN-00513",
+            "ECIN-00762",
+            "ECIN-00506",
+            "ECIN-00563"
+        ],
+        "name": "JOSE LUIS VEAS MUÑOZ",
+        "institutionalEmail": null,
+        "phone": "951002360",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 4,
+        "availability": []
+    },
+    {
+        "rut": "83945974",
+        "courseOffer": [
+            "ECIN-00415",
+            "ECIN-00510",
+            "ECIN-00701",
+            "ECIN-00408",
+            "ECIN-00337"
+        ],
+        "name": "HECTOR RODRIGO GONZALEZ LARA",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "132250138",
+        "courseOffer": [
+            "ECIN-00522",
+            "ECIN-00622",
+            "ECIN-00806",
+            "ECIN-00764",
+            "ECIN-00508",
+            "ECIN-00464"
+        ],
+        "name": "CARLOS MARIANO MANZANO MUNIZAGA",
+        "isAvailable": true,
+        "maxSectionsPerWeek": 4,
+        "availability": [
+            "LUNES-F",
+            "MARTES-F",
+            "LUNES-D",
+            "MIERCOLES-A",
+            "MIERCOLES-D",
+            "JUEVES-E"
+        ]
+    },
+    {
+        "rut": "155011645",
+        "courseOffer": [
+            "ECIN-00500",
+            "ECIN-00408",
+            "ECIN-00337",
+            "ECIN-00403"
+        ],
+        "name": "PEDRO JONATHAN REYES NORAMBUENA",
+        "institutionalEmail": "pedroreyes@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "170164555",
+        "courseOffer": [
+            "ECIN-00501",
+            "ECIN-00600"
+        ],
+        "name": "YERIS ALEJANDRO SAUD CARVAJAL",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 3,
+        "availability": []
+    },
+    {
+        "rut": "190161102",
+        "courseOffer": [
+            "ECIN-00504",
+            "ECIN-00704",
+            "ECIN-00100",
+            "ECIN-00115"
+        ],
+        "name": "MIGUEL ELÍAS ROJAS CASTILLO",
+        "institutionalEmail": null,
+        "phone": "952148944",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 3,
+        "availability": []
+    },
+    {
+        "rut": "193482430",
+        "courseOffer": [
+            "ECIN-00504"
+        ],
+        "name": "CINTIA BELEN VILLARROEL VERA",
+        "institutionalEmail": null,
+        "phone": "950552162",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "19145507K",
+        "courseOffer": [
+            "ECIN-00505",
+            "ECIN-00337",
+            "ECIN-00408"
+        ],
+        "name": "FERNANDO ALBERTO MONTENEGRO DOS SANTOS",
+        "institutionalEmail": null,
+        "phone": "996633091",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "114691038",
+        "courseOffer": [
+            "ECIN-00519",
+            "ECIN-00512",
+            "ECIN-00462"
+        ],
+        "name": "JUAN DEMOSTENES BEKIOS CALFA",
+        "institutionalEmail": "juan.bekios@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "145686792",
+        "courseOffer": [
+            "ECIN-00100",
+            "ECIN-00115"
+        ],
+        "name": "DANIEL GUSTAVO SAN MARTIN SANTIBAÑEZ",
+        "institutionalEmail": "daniel.sanmartin@ucn.cl",
+        "phone": "+56956319019",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "155876506",
+        "courseOffer": [
+            "ECIN-00600",
+            "ECIN-00600",
+            "ECIN-00100",
+            "ECIN-00115",
+            "ECIN-00409"
+        ],
+        "name": "PIA LORENA DEL CANTO CERDA",
+        "institutionalEmail": "pldelcanto@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 4,
+        "availability": []
+    },
+    {
+        "rut": "182011843",
+        "courseOffer": [
+            "ECIN-00606"
+        ],
+        "name": "GONZALO ALBERTO GODOY NUÑEZ",
+        "institutionalEmail": "gonzalo.godoy@ce.ucn.cl",
+        "phone": null,
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "18661299K",
+        "courseOffer": [
+            "ECIN-00603"
+        ],
+        "name": "IGNACIO HUMBERTO TORRES OLIVARES",
+        "institutionalEmail": "ignacio.torres@ucn.cl",
+        "phone": "+56932534402",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "187524334",
+        "courseOffer": [
+            "ECIN-00606",
+            "ECIN-01183"
+        ],
+        "name": "LISETTE ALEXANDRA OLIVARES GAHONA",
+        "institutionalEmail": "lisette.olivares@ce.ucn.cl",
+        "phone": "912345678",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "16893405K",
+        "courseOffer": [
+            "ECIN-00506",
+            "ECIN-00563",
+            "ECIN-00608"
+        ],
+        "name": "ERICK ANDRÉS DE LA BARRA OLIVARES",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "137620480",
+        "courseOffer": [
+            "ECIN-00609"
+        ],
+        "name": "PAUL SAINT LEGER MORALES",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "190424812",
+        "courseOffer": [
+            "ECIN-00619",
+            "ECIN-00808",
+            "ECIN-00660"
+        ],
+        "name": "JUAN PABLO MARTÍNEZ ROMERO",
+        "institutionalEmail": "jmr032@alumnos.ucn.cl",
+        "phone": "963511317",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 3,
+        "availability": []
+    },
+    {
+        "rut": "132211175",
+        "courseOffer": [
+            "ECIN-00800",
+            "ECIN-00809"
+        ],
+        "name": "CRISTIAN FERNANDO CHIANG RAMIREZ",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 3,
+        "availability": []
+    },
+    {
+        "rut": "74527604",
+        "courseOffer": [
+            "ECIN-00904",
+            "ECIN-00337",
+            "ECIN-00408"
+        ],
+        "name": "MARLON BRUNA PONCE",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 2,
+        "availability": []
+    },
+    {
+        "rut": "183175572",
+        "courseOffer": [
+            "ECIN-00336"
+        ],
+        "name": "RICARDO DAVID ORREGO RIVERA",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "128018654",
+        "courseOffer": [
+            "ECIN-00705"
+        ],
+        "name": "ALEJANDRO ANDRES GALLEGUILLOS ROSALES",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "199499505",
+        "courseOffer": [
+            "ECIN-00821"
+        ],
+        "name": "JHONATAN FRANCISCO ÁLVAREZ YÁÑEZ",
+        "institutionalEmail": null,
+        "phone": "993653922",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "155726997",
+        "courseOffer": [
+            "ECIN-00903",
+            "ECIN-00100",
+            "ECIN-00115"
+        ],
+        "name": "CLAUDIA ISABEL CONTRERAS HERRERA",
+        "institutionalEmail": "cicontreras@ucn.cl",
+        "phone": "+56986142285",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "94234549",
+        "courseOffer": [
+            "ECIN-00905",
+            "ECIN-00910"
+        ],
+        "name": "JORGE LUIS ALFARO PEREZ",
+        "institutionalEmail": "jalfaro@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "10982853K",
+        "courseOffer": [
+            "ECIN-00907"
+        ],
+        "name": "PATRICIO CACERES SAGUEZ",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "116058480",
+        "courseOffer": [
+            "ECIN-01306"
+        ],
+        "name": "MANUEL ANDRES GUZMAN TELLO",
+        "institutionalEmail": "manuel.guzman@austranet.com",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "256989395",
+        "courseOffer": [
+            "ECIN-00504",
+            "ECIN-00505",
+            "ECIN-00604"
+        ],
+        "name": "PAULO NOCERA ALVES JUNIOR",
+        "institutionalEmail": "paulo.alves@ucn.cl",
+        "phone": "1111111111",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 3,
+        "availability": []
+    },
+    {
+        "rut": "281306634",
+        "courseOffer": [
+            "ECIN-00703"
+        ],
+        "name": "AMIR",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "65432501",
+        "courseOffer": [
+            "ECIN-00508",
+            "ECIN-00464",
+            "ECIN-00764"
+        ],
+        "name": "MARCOS ENRIQUE CHAIT BOLLO",
+        "institutionalEmail": "mchait@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "163086379",
+        "courseOffer": [
+            "ECIN-00800",
+            "ECIN-01000",
+            "ECIN-01162",
+            "ECIN-01262",
+            "ECIN-01161",
+            "ECIN-01261"
+        ],
+        "name": "CAROLINA VANESSA PEÑA CARMONA",
+        "institutionalEmail": "carolina.pena@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 1,
+        "availability": []
+    },
+    {
+        "rut": "195646201",
+        "courseOffer": [
+            "ECIN-00200",
+            "ECIN-00201",
+            "ECIN-00307"
+        ],
+        "name": "MOISES NICOLAS MORAGA ROJAS",
+        "institutionalEmail": "moises.moraga@alumnos.ucn.cl",
+        "phone": "977841413",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "20006285K",
+        "courseOffer": [
+            "ECIN-00336"
+        ],
+        "name": "MAURICIO CARLOS VIVANCO SÁNCHEZ",
+        "institutionalEmail": "mc.vivanco24@gmail.com",
+        "phone": "56956061210",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "14639793K",
+        "courseOffer": [
+            "ECIN-01311"
+        ],
+        "name": "ANNE BIZIEN",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "104135544",
+        "courseOffer": [
+            "ECIN-00761",
+            "ECIN-00408",
+            "ECIN-00337",
+            "ECIN-00761",
+            "ECIN-00098",
+            "ECIN-00098",
+            "ECIN-00498",
+            "ECIN-00498"
+        ],
+        "name": "LORETO MORALES ACEVEDO",
+        "institutionalEmail": "loreto.morales@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "150354501",
+        "courseOffer": [
+            "ECIN-00100",
+            "ECIN-00115"
+        ],
+        "name": "CARLA ROMINA ALVARADO VILLALON",
+        "institutionalEmail": "carla.alvarado@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "185501493",
+        "courseOffer": [
+            "ECIN-00404",
+            "ECIN-00360",
+            "ECIN-00513"
+        ],
+        "name": "BASTIAN BRAULIO RUIZ GARAY",
+        "institutionalEmail": "bastian.ruiz@ce.ucn.cl",
+        "phone": "984130209",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "204102589",
+        "courseOffer": [
+            "ECIN-00519",
+            "ECIN-00512",
+            "ECIN-00462"
+        ],
+        "name": "MERARY SAJURY STEPHANIA CARRASCO MONTECINO",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "11378072K",
+        "courseOffer": [
+            "ECIN-00760"
+        ],
+        "name": "JAIME ROBERT LOBOS HUERTA",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "125697984",
+        "courseOffer": [
+            "ECIN-00510",
+            "ECIN-00701",
+            "ECIN-00415"
+        ],
+        "name": "OSVALDO EUSEBIO PAINEMAL TORRES",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "125769721",
+        "courseOffer": [
+            "ECIN-00722"
+        ],
+        "name": "RAFAEL EDGARDO RAMOS AQUEDA",
+        "institutionalEmail": "rafael.ramos@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "138704637",
+        "courseOffer": [
+            "ECIN-00065"
+        ],
+        "name": "ANDRES NICOLAS CORTES CORTES",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "175262377",
+        "courseOffer": [
+            "ECIN-00800",
+            "ECIN-00409"
+        ],
+        "name": "SEBASTIÁN ANDRÉS MUÑOZ FUENTES",
+        "institutionalEmail": "sebastian.munoz@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "20274611K",
+        "courseOffer": [],
+        "name": "LINO DANIEL SAAVEDRA VEGA",
+        "institutionalEmail": "lino.saavedra@ce.ucn.cl",
+        "phone": "998378427",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "201527066",
+        "courseOffer": [
+            "ECIN-01330"
+        ],
+        "name": "FERNANDO ENRIQUE HUERTA DÍAZ",
+        "institutionalEmail": "fernando.huerta@alumnos.ucn.cl",
+        "phone": "957816331",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "198871737",
+        "courseOffer": [],
+        "name": "CARLOS FERNANDO CATALDO CARRASCO",
+        "institutionalEmail": "carlos.cataldo@alumnos.ucn.cl",
+        "phone": "979782171",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "176245050",
+        "courseOffer": [],
+        "name": "VERONICA DE LOS ANGELES CORDONES ASTUDILLO",
+        "institutionalEmail": "vca006@alumnos.ucn.cl",
+        "phone": null,
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "204679622",
+        "courseOffer": [],
+        "name": "CRISTHIAN ALBERTO RABI REYES",
+        "institutionalEmail": "cristhian.rabi@ce.ucn.cl",
+        "phone": "+56974056384",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 5,
+        "availability": []
+    },
+    {
+        "rut": "200006283",
+        "courseOffer": [],
+        "name": "BRYAN ALEXANDER URRA CALFUÑIR",
+        "institutionalEmail": null,
+        "phone": "953201755",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "197014903",
+        "courseOffer": [],
+        "name": "CHRISTIAN ALEJANDRO SOTELO SALAS",
+        "institutionalEmail": null,
+        "phone": "87734128",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "284276256",
+        "courseOffer": [
+            "ECIN-00500",
+            "ECIN-00519",
+            "ECIN-00519",
+            "ECIN-00462",
+            "ECIN-00512",
+            "ECIN-00512",
+            "ECIN-00462"
+        ],
+        "name": "MARLON SANTIAGO VIÑAN LUDEÑA",
+        "institutionalEmail": "marlon.vinan@ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "201597153",
+        "courseOffer": [
+            "ECIN-00337",
+            "ECIN-00408",
+            "ECIN-00761",
+            "ECIN-00098",
+            "ECIN-00498",
+            "ECIN-00498",
+            "ECIN-00098",
+            "ECIN-00761"
+        ],
+        "name": "JUAN PABLO BAHAMONDE VALENZUELA",
+        "institutionalEmail": null,
+        "phone": "997831524",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "176514272",
+        "courseOffer": [
+            "ECIN-00337",
+            "ECIN-00408",
+            "ECIN-00337",
+            "ECIN-00408"
+        ],
+        "name": "PATRICIO FELIPE MENARES MENARES",
+        "institutionalEmail": "patricio.menares@ce.ucn.cl",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "180022465",
+        "courseOffer": [
+            "ECIN-00800",
+            "ECIN-00409"
+        ],
+        "name": "ARACELLY ANDREA ARAVENA FREDES",
+        "institutionalEmail": "aracelly.aravena@ce.ucn.cl",
+        "phone": "2851160",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "156807281",
+        "courseOffer": [
+            "ECIN-00460"
+        ],
+        "name": "ALVARO VALDERRAMA ZENTENO",
+        "institutionalEmail": null,
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "200258223",
+        "courseOffer": [
+            "ECIN-00261"
+        ],
+        "name": "CRISTIAN WILSON GALLEGUILLOS ARAYA",
+        "institutionalEmail": null,
+        "phone": "993535548",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    },
+    {
+        "rut": "13870534K",
+        "courseOffer": [],
+        "name": "CARLOS ALBERTO MONARDES CONCHA",
+        "institutionalEmail": "cmonardes@ucn.cl",
+        "phone": "998668510",
+        "isAvailable": false,
+        "maxSectionsPerWeek": 0,
+        "availability": []
+    }
+]
