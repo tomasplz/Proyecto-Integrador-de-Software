@@ -1,4 +1,3 @@
-      
 import { PrismaClient, Prisma } from '@prisma/client';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -60,11 +59,11 @@ async function seedBloqueHorario() {
 
                 try {
                     await prisma.bloqueHorario.upsert({
-                        where: { dia_nombre: { dia: dia, nombre: bloque.nombre.toUpperCase() } },
+                        where: { dia_name: { dia: dia, name: bloque.nombre.toUpperCase() } },
                         update: { horaInicio: horaInicioDate, horaFin: horaFinDate },
                         create: {
                             dia: dia,
-                            nombre: bloque.nombre.toUpperCase(),
+                            name: bloque.nombre.toUpperCase(),
                             horaInicio: horaInicioDate,
                             horaFin: horaFinDate,
                         },
@@ -166,9 +165,9 @@ async function seedSalas() {
         const salasData: SalaData[] = JSON.parse(fileContent);
             for (const sala of salasData) {
                 await prisma.sala.upsert({
-                    where: { nombre: sala.nombre },
+                    where: { name: sala.nombre },
                     update: { capacidad: sala.capacidad, sede: sala.sede },
-                    create: { nombre: sala.nombre, capacidad: sala.capacidad, sede: sala.sede },
+                    create: { name: sala.nombre, capacidad: sala.capacidad, sede: sala.sede },
                 });
             }
         } catch (error) {
@@ -207,22 +206,35 @@ async function seedProfesoresYDisponibilidad() {
             const profesor = await prisma.profesor.upsert({
                 where: { rut: profData.rut },
                 update: {
+                    name: profData.name,
+                    courseOffer: profData.courseOffer || [],
+                    isAvailable: profData.isAvailable ?? false,
+                    maxSectionsPerWeek: profData.maxSectionsPerWeek ?? 0,
+                    institutionalEmail: profData.institutionalEmail ?? null,
+                    phone: profData.phone ?? null,
+                    availability: profData.availability || [],
                 },
                 create: {
                     rut: profData.rut,
-                    nombre: profData.name,
+                    name: profData.name,
+                    courseOffer: profData.courseOffer || [],
+                    isAvailable: profData.isAvailable ?? false,
+                    maxSectionsPerWeek: profData.maxSectionsPerWeek ?? 0,
+                    institutionalEmail: profData.institutionalEmail ?? null,
+                    phone: profData.phone ?? null,
+                    availability: profData.availability || [],
                 },
             });
 
             if (profData.availability && profData.availability.length > 0) {
                 for (const disponibilidadStr of profData.availability) {
-                    console.log("Procesando disponibilidad de profesor:", profesor.nombre, "->", disponibilidadStr);
+                    console.log("Procesando disponibilidad de profesor:", profesor.name, "->", disponibilidadStr);
                     const parts = disponibilidadStr.split('-');
                     if (parts.length < 2) continue;
                     const dia = parts[0].trim().toUpperCase();
                     const nombreBloque = parts.slice(1).join('-').trim().toUpperCase();
                     const bloqueHorario = await prisma.bloqueHorario.findUnique({
-                        where: { dia_nombre: { dia: dia, nombre: nombreBloque } },
+                        where: { dia_name: { dia: dia, name: nombreBloque } },
                     });
 
                     if (bloqueHorario) {
@@ -232,7 +244,7 @@ async function seedProfesoresYDisponibilidad() {
                             create: { profesorId: profesor.id, bloqueHorarioId: bloqueHorario.id }
                         });
                     } else {
-                        console.warn(`BloqueHorario no encontrado para disponibilidad: ${dia} - ${nombreBloque} (Profesor ${profesor.nombre})`);
+                        console.warn(`BloqueHorario no encontrado para disponibilidad: ${dia} - ${nombreBloque} (Profesor ${profesor.name})`);
                     }
                 }
             }
@@ -329,10 +341,19 @@ async function seedEntidadesDesdeDemanda() {
             }
 
             // 2. Gestionar Carrera
+            const careerCodeMapping: { [key: string]: string } = {
+                "INGENIERIA CIVIL EN COMPUTACION E INFORMATICA": "ICCI",
+                "INGENIERIA CIVIL INDUSTRIAL": "ICI",
+                "INGENIERIA EN TECNOLOGIAS DE LA INFORMACION": "ITI"
+            };
+            const careerName = demanda.career.trim().toUpperCase();
+            const careerCode = careerCodeMapping[careerName] || careerName;
+
+            // 2. Gestionar Carrera
             const carrera = await prisma.carrera.upsert({
-                where: { nombre: demanda.career.trim().toUpperCase() },
-                update: {},
-                create: { nombre: demanda.career.trim().toUpperCase() },
+                where: { code: careerCode },
+                update: { name: careerName },
+                create: { name: careerName, code: careerCode },
             });
 
             // 3. Gestionar Semestre
@@ -346,16 +367,23 @@ async function seedEntidadesDesdeDemanda() {
             });
 
             // 4. Gestionar Asignatura
-            // Asume que tu schema Asignatura tiene @@unique([codigo, semestreId])
-            // y el nombre del índice es 'codigo_semestreId' o el que hayas definido.
-            // Ejecuta `prisma generate` después de cambiar el schema para que los tipos sean correctos.
             const asignatura = await prisma.asignatura.upsert({
-                where: { codigo_semestreId: { codigo: demanda.code.trim(), semestreId: semestre.id } },
-                update: { nombre: demanda.name.trim() },
+                where: { code_semestreId: { code: demanda.code.trim(), semestreId: semestre.id } },
+                update: { 
+                    name: demanda.name.trim(),
+                    demand: demanda.demand,
+                    suggestedRoom: demanda.suggestedRoom,
+                    isLocked: demanda.isLocked,
+                    isPreAssigned: demanda.isPreAssigned,
+                },
                 create: {
-                    codigo: demanda.code.trim(),
-                    nombre: demanda.name.trim(),
+                    code: demanda.code.trim(),
+                    name: demanda.name.trim(),
                     semestreId: semestre.id,
+                    demand: demanda.demand,
+                    suggestedRoom: demanda.suggestedRoom,
+                    isLocked: demanda.isLocked,
+                    isPreAssigned: demanda.isPreAssigned,
                 },
             });
 

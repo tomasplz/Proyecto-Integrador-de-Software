@@ -17,8 +17,9 @@ datasource db {
 
 // Representa una carrera universitaria
 model Carrera {
-  id       Int        @id @default(autoincrement())
-  nombre   String     @unique
+  id        Int        @id @default(autoincrement())
+  name      String     @unique @map("nombre")
+  code      String     @unique // e.g., ICCI, ICI, ITI
   semestres Semestre[] // Relación 1:N con Semestre
 }
 
@@ -36,30 +37,39 @@ model Semestre {
 
 // Representa una materia (e.g., "Ingeniería de Software")
 model Asignatura {
-  id         Int      @id @default(autoincrement())
-  codigo     String   // El código ya no es globalmente único por sí solo
-  nombre     String
-  semestreId Int
-  semestre   Semestre @relation(fields: [semestreId], references: [id])
-  paralelos Paralelo[]
+  id            Int        @id @default(autoincrement())
+  code          String     @map("codigo")
+  name          String     @map("nombre")
+  semestreId    Int
+  semestre      Semestre   @relation(fields: [semestreId], references: [id])
+  paralelos     Paralelo[]
+  demand        Int?       @map("demanda")
+  suggestedRoom String?    @map("sala_sugerida")
+  isLocked      Boolean    @default(false) @map("bloqueado")
+  isPreAssigned Boolean    @default(false) @map("pre_asignado")
 
-  @@unique([codigo, semestreId]) // Ahora la combinación es única
+  @@unique([code, semestreId]) // Ahora la combinación es única
 }
 
 // Representa un docente o ayudante
 model Profesor {
   id                 Int                       @id @default(autoincrement())
   rut                String                    @unique
-  nombre             String
-  paralelos         Paralelo[] // Relación 1:N con Paralelo (un profesor dicta varios paralelos)
-  // Relación M:N con BloqueHorario para la disponibilidad
+  name               String
+  courseOffer        String[]
+  isAvailable        Boolean                   @default(false)
+  maxSectionsPerWeek Int                       @default(0)
+  availability       String[]
+  institutionalEmail String?                   @db.Text
+  phone              String?                   @db.Text
+  paralelos          Paralelo[] // Relación 1:N con Paralelo (un profesor dicta varios paralelos)
   bloquesDisponibles ProfesorBloqueDisponible[] @relation("ProfesorBloqueDisponibleProfesor")
 }
 
 // Representa un espacio físico para clases
 model Sala {
   id           Int              @id @default(autoincrement())
-  nombre       String           @unique
+  name         String           @unique @map("nombre")
   capacidad    Int?
   sede         String
   asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (una sala se usa en varias clases/bloques)
@@ -69,7 +79,7 @@ model Sala {
 model BloqueHorario {
   id           Int              @id @default(autoincrement())
   dia          String           // e.g., "Lunes", "Martes"
-  nombre       String           // e.g., "A", "B", "C", "D", "E", "F"
+  name         String           @unique @map("nombre")
   horaInicio   DateTime         @map("hora_inicio")
   horaFin      DateTime         @map("hora_fin")
   asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un bloque tiene varias clases/salas)
@@ -77,7 +87,7 @@ model BloqueHorario {
   profesoresDisponibles ProfesorBloqueDisponible[] @relation("ProfesorBloqueDisponibleBloque")
 
   // Asegura que un día y nombre de bloque sean únicos (e.g., solo un "Lunes A")
-  @@unique([dia, nombre])
+  @@unique([dia, name])
 }
 
 // Tabla de enlace para la relación M:N entre Profesor y BloqueHorario (Disponibilidad)
