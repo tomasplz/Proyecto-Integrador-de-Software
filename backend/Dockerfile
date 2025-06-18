@@ -29,4 +29,5 @@ COPY --from=build_stage /app/prisma ./prisma
 COPY --from=build_stage /app/node_modules ./node_modules
 
 RUN pnpm install -g ts-node
-CMD [ "node", "dist/src/main.js" ]
+COPY entrypoint.sh ./
+ENTRYPOINT ["./entrypoint.sh"]

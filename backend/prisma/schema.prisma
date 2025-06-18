@@ -78,8 +78,8 @@ model Sala {
 // Representa un segmento de tiempo en un día (e.g., "Martes C")
 model BloqueHorario {
   id           Int              @id @default(autoincrement())
-  dia          String           // e.g., "Lunes", "Martes"
-  name         String           @unique @map("nombre")
+  dia          String           
+  name         String           @map("nombre")
   horaInicio   DateTime         @map("hora_inicio")
   horaFin      DateTime         @map("hora_fin")
   asignaciones AsignacionHorario[] // Relación 1:N con AsignacionHorario (un bloque tiene varias clases/salas)
