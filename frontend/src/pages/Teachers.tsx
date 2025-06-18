@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import type { Teacher, Course, TimeSlotData, ScheduledCourse } from '@/lib/types'
 import { Pagination } from '@/components/pagination'
-import teachersData from '@/lib/teachers.json'
 import coursesData from '@/lib/courses.json'
 import timeSlotsData from '@/lib/timeSlot.json'
 import { useSedeContext } from '@/lib/sede-context'
@@ -174,13 +173,20 @@ export default function Teachers() {
   }, [teachers, currentTeacherForSchedule])
 
   useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
-      console.log('Loading teachers data:', teachersData.length, 'teachers')
-      setTeachers(teachersData as Teacher[])
-      setLoading(false)
-    }, 500)
-
+    const fetchTeachers = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch('http://localhost:3000/profesores')
+        const data = await response.json()
+        console.log(`Loaded ${data.length} teachers:`, data)
+        setTeachers(data)
+      } catch (error) {
+        console.error('Error fetching teachers:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTeachers()
     // Load schedule data and set up listener for changes
     loadScheduleData()
     
@@ -366,6 +372,7 @@ export default function Teachers() {
                   </div>
                 </div>
               ))}
+
             </div>
 
             {/* Paginación */}
@@ -407,8 +414,7 @@ export default function Teachers() {
           </>
         ) : (
           <>
-            {/* Vista de Horarios */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Vista de Horarios */}            <div className="flex flex-col sm:flex-row gap-4">
               <Select value={selectedTeacherForSchedule} onValueChange={setSelectedTeacherForSchedule}>
                 <SelectTrigger className="w-[300px]">
                   <SelectValue placeholder="Seleccionar profesor" />
