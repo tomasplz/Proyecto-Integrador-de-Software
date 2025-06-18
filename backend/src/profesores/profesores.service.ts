@@ -5,11 +5,37 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProfesoresService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.profesor.findMany();
+  async findAll() {
+    const profesores = await this.prisma.profesor.findMany({
+      include: {
+        bloquesDisponibles: {
+          include: {
+            bloqueHorario: true,
+          },
+        },
+      },
+    });
+    return profesores.map((prof) => ({
+      ...prof,
+      availability: prof.bloquesDisponibles.map((b) => `${b.bloqueHorario.dia}-${b.bloqueHorario.name}`),
+    }));
   }
 
-  findOne(id: string) {
-    return this.prisma.profesor.findUnique({ where: { id: Number(id) } });
+  async findOne(id: string) {
+    const prof = await this.prisma.profesor.findUnique({
+      where: { id: Number(id) },
+      include: {
+        bloquesDisponibles: {
+          include: {
+            bloqueHorario: true,
+          },
+        },
+      },
+    });
+    if (!prof) return null;
+    return {
+      ...prof,
+      availability: prof.bloquesDisponibles.map((b) => `${b.bloqueHorario.dia}-${b.bloqueHorario.name}`),
+    };
   }
 }
