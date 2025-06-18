@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import type { Classroom, TimeSlotData, ScheduledCourse } from '@/lib/types'
-import classroomsData from '@/lib/classrooms.json'
-import timeSlotsData from '@/lib/timeSlot.json'
 import { useSedeContext } from '@/lib/sede-context'
 import { Input } from "@/components/ui/input"
 import {
@@ -36,77 +34,84 @@ interface ScheduleByCareerAndSemester {
   [careerAndSemester: string]: TimeSlot[];
 }
 
-const defaultTimeSlots: ClassroomTimeSlot[] = (timeSlotsData as TimeSlotData[])
-  .filter(slot => slot.horario !== null)
-  .map(slot => ({ time: slot.horario! }))
-
-const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
-
+// Estado para bloques horarios y aulas
 export default function Classrooms() {
   const { selectedSede } = useSedeContext()
-  const [schedule, setSchedule] = useState<ClassroomTimeSlot[]>(defaultTimeSlots)
+  const [timeSlots, setTimeSlots] = useState<TimeSlotData[]>([])
+  const [schedule, setSchedule] = useState<ClassroomTimeSlot[]>([])
   const [classrooms, setClassrooms] = useState<Classroom[]>([])
   const [selectedCell, setSelectedCell] = useState<{ time: string; day: keyof Omit<ClassroomTimeSlot, 'time'> } | null>(null)
   const [scheduleData, setScheduleData] = useState<ScheduleByCareerAndSemester>({})
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedClassroom, setSelectedClassroom] = useState<string>('all')  // Load schedule data from localStorage
+  const [selectedClassroom, setSelectedClassroom] = useState<string>('all')
+
+  // Cargar aulas y bloques horarios desde la API
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/salas')
+        const data = await res.json()
+        console.log('Datos de aulas cargados desde la API:', data)
+        setClassrooms(data)
+      } catch (e) {
+        console.error('Error al cargar aulas desde la API:', e)
+        setClassrooms([])
+      }
+    }
+    const fetchTimeSlots = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/bloques-horario')
+        const data = await res.json()
+        console.log('Datos de bloques horarios cargados desde la API:', data)
+        setTimeSlots(data)
+      } catch (e) {
+        console.error('Error al cargar bloques horarios desde la API:', e)
+        setTimeSlots([])
+      }
+    }
+    fetchClassrooms()
+    fetchTimeSlots()
+  }, [])
+
+  const defaultTimeSlots: ClassroomTimeSlot[] = useMemo(() =>
+    timeSlots.filter(slot => slot.horario !== null).map(slot => ({ time: slot.horario! })),
+    [timeSlots]
+  )
+
+  const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+  const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
+
+  // Load schedule data from localStorage
   const loadScheduleData = useCallback(() => {
     try {
       const storedData = localStorage.getItem('schedulesByCareerAndSemester')
-      console.log('Raw localStorage data:', storedData)
       if (storedData) {
-        const parsedData = JSON.parse(storedData)
-        console.log('Parsed schedule data:', parsedData)
-        setScheduleData(parsedData)
-      } else {
-        console.log('No schedule data found in localStorage')
+        setScheduleData(JSON.parse(storedData))
       }
     } catch (error) {
       console.error('Error loading schedule data:', error)
     }
   }, [])
+
   // Generate classroom schedule based on room assignments
   const generateClassroomSchedule = useCallback((classroomName: string): ClassroomTimeSlot[] => {
-    console.log('Generating schedule for classroom:', classroomName)
-    console.log('Available schedule data:', scheduleData)
-    
     const classroomSchedule = defaultTimeSlots.map(slot => ({ ...slot }))
-    
-    // Process all careers and semesters
     Object.entries(scheduleData).forEach(([careerKey, timeSlots]) => {
-      console.log(`Processing career: ${careerKey}`)
       timeSlots.forEach(timeSlot => {
-        console.log(`Processing time slot: ${timeSlot.time}`)
-        
-        // Find matching time slot in classroom schedule
         const matchingSlot = classroomSchedule.find(slot => slot.time === timeSlot.time)
-        if (!matchingSlot) {
-          console.log(`No matching slot found for time: ${timeSlot.time}`)
-          return
-        }
-
-        // Check each day for courses assigned to this classroom
+        if (!matchingSlot) return
         dayKeys.forEach((dayKey) => {
           const course = timeSlot[dayKey]
-          if (course) {
-            console.log(`Found course for ${dayKey}:`, course)
-            console.log(`Course selectedRoom: ${course.selectedRoom}, looking for: ${classroomName}`)
-            
-            if (course.selectedRoom === classroomName) {
-              console.log(`Match! Assigning course to ${dayKey}`)
-              matchingSlot[dayKey] = `${course.name} - ${course.code}`
-            }
+          if (course && course.selectedRoom === classroomName) {
+            matchingSlot[dayKey] = `${course.name} - ${course.code}`
           }
         })
       })
     })
-
-    console.log('Final classroom schedule:', classroomSchedule)
     return classroomSchedule
-  }, [scheduleData])
+  }, [scheduleData, defaultTimeSlots])
 
   // Map sede context values to classroom sede values
   const getSedeFilter = () => {
@@ -119,7 +124,6 @@ export default function Classrooms() {
     return classrooms.filter(classroom => {
       const matchesSearch = classroom.nombre.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesSede = classroom.sede === sedeFilter
-      
       return matchesSearch && matchesSede
     })
   }, [classrooms, searchTerm, selectedSede])
@@ -136,28 +140,20 @@ export default function Classrooms() {
     }
     return filteredClassrooms.find(c => c.nombre === selectedClassroom) || null
   }, [filteredClassrooms, selectedClassroom])
-  useEffect(() => {
-    // Load classrooms data
-    setTimeout(() => {
-      console.log('Cargando aulas:', classroomsData.length, 'aulas encontradas')
-      setClassrooms(classroomsData as Classroom[])
-    }, 500)
 
-    // Load schedule data and set up listener for changes
+  // Cargar scheduleData y escuchar cambios en localStorage
+  useEffect(() => {
     loadScheduleData()
-    
-    // Listen for localStorage changes (when Schedule page updates data)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'schedulesByCareerAndSemester') {
         loadScheduleData()
       }
     }
-    
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [loadScheduleData])
 
-  // Update classroom schedule when current classroom or schedule data changes
+  // Actualizar horario del aula cuando cambian los datos
   useEffect(() => {
     if (currentClassroom && Object.keys(scheduleData).length > 0) {
       const updatedSchedule = generateClassroomSchedule(currentClassroom.nombre)
@@ -165,7 +161,7 @@ export default function Classrooms() {
     } else {
       setSchedule(defaultTimeSlots)
     }
-  }, [currentClassroom, scheduleData, generateClassroomSchedule])
+  }, [currentClassroom, scheduleData, generateClassroomSchedule, defaultTimeSlots])
 
   // Reset classroom selection when filters change
   useEffect(() => {

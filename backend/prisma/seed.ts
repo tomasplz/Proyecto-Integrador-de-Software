@@ -167,9 +167,9 @@ async function seedSalas() {
         const salasData: SalaData[] = JSON.parse(fileContent);
             for (const sala of salasData) {
                 await prisma.sala.upsert({
-                    where: { name: sala.nombre },
+                    where: { nombre: sala.nombre }, // cambiado name -> nombre
                     update: { capacidad: sala.capacidad, sede: sala.sede },
-                    create: { name: sala.nombre, capacidad: sala.capacidad, sede: sala.sede },
+                    create: { nombre: sala.nombre, capacidad: sala.capacidad, sede: sala.sede }, // cambiado name -> nombre
                 });
             }
         } catch (error) {
