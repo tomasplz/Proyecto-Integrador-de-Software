@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import type { Course } from '@/lib/types'
+import type { Course, Career } from '@/lib/types'
 import { Pagination } from '@/components/pagination'
-import coursesData from '@/lib/courses.json'
 
 export default function Courses() {
   const [courses, setCourses] = useState<Course[]>([])
-  const [loading, setLoading] = useState(true) 
+  const [careers, setCareers] = useState<Career[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSemester, setSelectedSemester] = useState<number | 'all'>('all')
   const [selectedCareer, setSelectedCareer] = useState<string>('all')
@@ -13,13 +13,39 @@ export default function Courses() {
   const itemsPerPage = 10
 
   useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
-      console.log('Loading courses data:', coursesData.length, 'courses')
-      setCourses(coursesData as Course[])
-      setLoading(false)
-    }, 500)
+    const fetchCoursesAndCareers = async () => {
+      try {
+        setLoading(true)
+        const [coursesResponse, careersResponse] = await Promise.all([
+          fetch('http://localhost:3000/asignaturas'),
+          fetch('http://localhost:3000/carreras')
+        ]);
+
+        if (!coursesResponse.ok || !careersResponse.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const coursesData: Course[] = await coursesResponse.json();
+        const careersData: Career[] = await careersResponse.json();
+
+        console.log(`Se cargaron ${coursesData.length} cursos.`);
+        console.log(coursesData);
+        console.log(`Se cargaron ${careersData.length} carreras.`);
+        console.log(careersData);
+
+        setCourses(coursesData);
+        setCareers(careersData);
+
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCoursesAndCareers()
   }, [])
+
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.code.toLowerCase().includes(searchTerm.toLowerCase())
@@ -113,13 +139,11 @@ export default function Courses() {
             className="px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <option value="all">Todas las carreras</option>
-            <option value="ICCI">
-              Ingeniería Civil en Computación e Informática
-            </option>
-            <option value="ICI">Ingeniería Civil Industrial</option>
-            <option value="ITI">
-              Ingeniería en Tecnologías de la Información
-            </option>
+            {careers.map((career) => (
+              <option key={career.id} value={career.id}>
+                {career.name}
+              </option>
+            ))}
           </select>
           <div className="text-sm text-muted-foreground flex items-center">
             {filteredCourses.length} de {courses.length} cursos
