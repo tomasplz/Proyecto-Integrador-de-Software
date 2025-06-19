@@ -238,21 +238,34 @@ export default function Classrooms() {
           row[dia] = null;
           return;
         }
-        // Buscar si la sala está ocupada en este bloqueHorario
         let asignacion = null;
+        // Mapear español a inglés para dayKey
+        const dayMap: Record<string, string> = {
+          'LUNES': 'monday',
+          'MARTES': 'tuesday',
+          'MIERCOLES': 'wednesday',
+          'JUEVES': 'thursday',
+          'VIERNES': 'friday',
+          'SABADO': 'saturday',
+        };
+        const slotDayKey = dayMap[dia.toUpperCase()] || dia.toLowerCase();
+        // Buscar en todos los schedules
         Object.values(scheduleData).forEach((timeSlots: any[]) => {
           timeSlots.forEach((slot) => {
-            // slot.time debe coincidir con bh.horaInicio y bh.horaFin (o con el string de horario si lo tienes)
-            // Aquí asumimos que slot.time === `${bh.horaInicio} - ${bh.horaFin}` o similar
-            if (slot.time && bh.horaInicio && bh.horaFin) {
+            // Buscar el bloque correcto por nombre (A, B, ...)
+            // Se asume que slot.bloque existe, si no, hacer el cruce por hora
+            let slotBloque = slot.bloque;
+            if (!slotBloque && slot.time && bh.horaInicio && bh.horaFin) {
+              // Si no hay campo bloque, intentar cruce por hora
               const horaStr = `${bh.horaInicio.slice(11,16)} - ${bh.horaFin.slice(11,16)}`;
               if (slot.time === horaStr) {
-                // Buscar si en este slot, en este día, está la sala
-                const dayKey = dia.toLowerCase();
-                const course = slot[dayKey];
-                if (course && course.selectedRoom === currentClassroom.nombre) {
-                  asignacion = `${course.name} - ${course.code}`;
-                }
+                slotBloque = bh.name;
+              }
+            }
+            if (slotBloque === bh.name) {
+              const course = slot[slotDayKey];
+              if (course && course.selectedRoom === currentClassroom.nombre) {
+                asignacion = `${course.name} - ${course.code}`;
               }
             }
           });
