@@ -45,6 +45,10 @@ const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturd
 
 export default function Classrooms() {
   const { selectedSede } = useSedeContext()
+  // --- NUEVO: Estados para bloques y días dinámicos ---
+  const [bloquesHorario, setBloquesHorario] = useState<any[]>([])
+  const [dias, setDias] = useState<string[]>([])
+  const [bloques, setBloques] = useState<string[]>([])
   const [schedule, setSchedule] = useState<ClassroomTimeSlot[]>(defaultTimeSlots)
   const [classrooms, setClassrooms] = useState<Classroom[]>([])
   const [selectedCell, setSelectedCell] = useState<{ time: string; day: keyof Omit<ClassroomTimeSlot, 'time'> } | null>(null)
@@ -192,6 +196,73 @@ export default function Classrooms() {
   const totalSlots = schedule.length * days.length
   const utilizationPercentage = totalSlots > 0 ? Math.round((occupiedSlots / totalSlots) * 100) : 0
 
+  // --- NUEVO: Obtener bloques de horario desde la API ---
+  useEffect(() => {
+    fetch('http://localhost:3000/bloques-horario')
+      .then(res => res.json())
+      .then((data) => {
+        setBloquesHorario(data)
+        // Extraer días únicos y bloques únicos ordenados
+        const uniqueDias = Array.from(new Set(data.map((b: any) => b.dia)))
+        setDias(uniqueDias)
+        const uniqueBloques = Array.from(new Set(data.map((b: any) => b.name))).sort()
+        setBloques(uniqueBloques)
+      })
+      .catch(console.error)
+  }, [])
+
+  // --- NUEVO: Generar grilla dinámica de horarios ---
+  const dynamicTimeSlots = useMemo(() => {
+    // Cada bloque es una fila, cada día es una columna
+    return bloques.map((bloque) => {
+      const slot: any = { bloque };
+      dias.forEach((dia) => {
+        // Buscar el bloqueHorario correspondiente
+        const found = bloquesHorario.find(bh => bh.dia === dia && bh.name === bloque)
+        slot[dia] = found ? '' : undefined // Inicialmente vacío
+      })
+      return slot
+    })
+  }, [bloques, dias, bloquesHorario])
+
+  // --- NUEVO: Generar matriz de ocupación real para la sala seleccionada ---
+  const classroomScheduleMatrix = useMemo(() => {
+    if (!currentClassroom || !bloquesHorario.length || !Object.keys(scheduleData).length) return [];
+    // Crear matriz: filas = bloques, columnas = días
+    return bloques.map((bloque) => {
+      const row: any = { bloque };
+      dias.forEach((dia) => {
+        // Buscar el bloqueHorario correspondiente
+        const bh = bloquesHorario.find(bh => bh.dia === dia && bh.name === bloque);
+        if (!bh) {
+          row[dia] = null;
+          return;
+        }
+        // Buscar si la sala está ocupada en este bloqueHorario
+        let asignacion = null;
+        Object.values(scheduleData).forEach((timeSlots: any[]) => {
+          timeSlots.forEach((slot) => {
+            // slot.time debe coincidir con bh.horaInicio y bh.horaFin (o con el string de horario si lo tienes)
+            // Aquí asumimos que slot.time === `${bh.horaInicio} - ${bh.horaFin}` o similar
+            if (slot.time && bh.horaInicio && bh.horaFin) {
+              const horaStr = `${bh.horaInicio.slice(11,16)} - ${bh.horaFin.slice(11,16)}`;
+              if (slot.time === horaStr) {
+                // Buscar si en este slot, en este día, está la sala
+                const dayKey = dia.toLowerCase();
+                const course = slot[dayKey];
+                if (course && course.selectedRoom === currentClassroom.nombre) {
+                  asignacion = `${course.name} - ${course.code}`;
+                }
+              }
+            }
+          });
+        });
+        row[dia] = asignacion;
+      });
+      return row;
+    });
+  }, [bloques, dias, bloquesHorario, scheduleData, currentClassroom]);
+
   return (
     <div className="h-full w-full flex flex-col bg-background">
       <div className="p-4 space-y-4 flex-1 overflow-auto">
@@ -259,36 +330,31 @@ export default function Classrooms() {
               <thead className="border-b bg-muted/50">
                 <tr>
                   <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground w-40">
-                    Horario
+                    Bloque
                   </th>
-                  {days.map((day) => (
-                    <th key={day} className="h-12 px-4 text-center align-middle font-medium text-muted-foreground min-w-48">
-                      {day}
+                  {dias.map((dia) => (
+                    <th key={dia} className="h-12 px-4 text-center align-middle font-medium text-muted-foreground min-w-48">
+                      {dia}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {schedule.map((slot, index) => (
+                {classroomScheduleMatrix.map((slot, index) => (
                   <tr key={index} className="border-b transition-colors hover:bg-muted/50">
                     <td className="p-9 align-middle font-medium text-sm bg-muted/25">
-                      {slot.time}
+                      {slot.bloque}
                     </td>
-                    {dayKeys.map((dayKey) => {
-                      const content = getCellContent(slot, dayKey)
+                    {dias.map((dia) => {
+                      const content = slot[dia];
                       return (
                         <td
-                          key={dayKey}
+                          key={dia}
                           className={`p-2 align-middle text-center cursor-pointer transition-colors min-h-16 ${
                             content 
                               ? 'bg-primary/10 hover:bg-primary/20' 
                               : 'hover:bg-accent/50'
-                          } ${
-                            selectedCell?.time === slot.time && selectedCell?.day === dayKey
-                              ? 'ring-2 ring-primary'
-                              : ''
                           }`}
-                          onClick={() => handleCellClick(slot.time, dayKey)}
                         >
                           {content && (
                             <div className="bg-primary text-primary-foreground rounded px-2 py-1 text-xs font-medium">
