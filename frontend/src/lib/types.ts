@@ -37,7 +37,7 @@ export interface Classroom {
   sede: string
 }
 
-export interface TimeSlotData {
+export interface TimeSlot {
   nombre: string
   horario: string | null
   minuto_inicio: number | null
@@ -53,6 +53,34 @@ export interface Horario {
   aula_id: number | null
   dia: string
   hora: string
+}
+
+export interface HorarioItem {
+  dia: string;
+  hora: string;
+  sala: string | null;
+  profesor: string | null;
+}
+
+export interface AsignaturaSchedule {
+  nombre: string;
+  codigo: string;
+  horarios: HorarioItem[];
+}
+
+export interface SemestreSchedule {
+  semestre: number;
+  asignaturas: AsignaturaSchedule[];
+}
+
+export interface Schedule {
+  carrera: string;
+  semestres: SemestreSchedule[];
+}
+
+export interface FlatScheduleItem extends HorarioItem {
+  asignatura: string;
+  codigo: string;
 }
 
 export type HorarioInsert = Omit<Horario, "id"> & { id?: number }
