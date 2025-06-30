@@ -17,7 +17,7 @@ export class ProfesoresService {
     });
     return profesores.map((prof) => ({
       ...prof,
-      availability: prof.bloquesDisponibles.map((b) => `${b.bloqueHorario.dia}-${b.bloqueHorario.name}`),
+      availability: prof.bloquesDisponibles.map((b) => `${b.bloqueHorario.dia}-${b.bloqueHorario.nombre}`),
     }));
   }
 
@@ -35,7 +35,7 @@ export class ProfesoresService {
     if (!prof) return null;
     return {
       ...prof,
-      availability: prof.bloquesDisponibles.map((b) => `${b.bloqueHorario.dia}-${b.bloqueHorario.name}`),
+      availability: prof.bloquesDisponibles.map((b) => `${b.bloqueHorario.dia}-${b.bloqueHorario.nombre}`),
     };
   }
 }
