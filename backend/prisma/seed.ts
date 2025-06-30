@@ -13,20 +13,21 @@ interface BloqueData {
     minuto_termino: number | null;
 }
 
+const diasSemana = [
+    'LUNES',
+    'MARTES',
+    'MIERCOLES',
+    'JUEVES',
+    'VIERNES',
+    'SABADO'
+];
+
 async function seedBloqueHorario() {
     console.log('Seeding BloqueHorario...');
     try {
         const filePath = path.join(dataInputDir, 'bloques_data.json');
         const fileContent = await fs.readFile(filePath, 'utf-8');
         const bloquesData: BloqueData[] = JSON.parse(fileContent);
-        const diasSemana = [
-            'LUNES',
-            'MARTES',
-            'MIERCOLES',
-            'JUEVES',
-            'VIERNES',
-            'SABADO'
-        ];
 
         for (const dia of diasSemana) {
             for (const bloque of bloquesData) {
@@ -46,6 +47,7 @@ async function seedBloqueHorario() {
                     continue;
                 }
 
+                // Usar una fecha base para todos los bloques
                 const fechaBase = new Date('2025-01-01T00:00:00.000Z');
                 const horaInicioDate = new Date(fechaBase);
                 horaInicioDate.setUTCHours(inicioH, inicioM, 0, 0);
@@ -69,12 +71,12 @@ async function seedBloqueHorario() {
                         },
                     });
                 } catch (e: any) {
-                    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') { // Correcto
-                       console.log(`BloqueHorario: ${dia} - ${bloque.nombre.toUpperCase()} already exists. Skipping creation.`);
-                   } else {
-                       console.error(`Error upserting BloqueHorario ${dia} - ${bloque.nombre.toUpperCase()}:`, e);
-                   }
-               }
+                    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+                        console.log(`BloqueHorario: ${dia} - ${bloque.nombre.toUpperCase()} already exists. Skipping creation.`);
+                    } else {
+                        console.error(`Error upserting BloqueHorario ${dia} - ${bloque.nombre.toUpperCase()}:`, e);
+                    }
+                }
             }
         }
         console.log('BloqueHorario seeding finished.');
