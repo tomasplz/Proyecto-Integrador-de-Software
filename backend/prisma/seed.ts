@@ -59,11 +59,11 @@ async function seedBloqueHorario() {
 
                 try {
                     await prisma.bloqueHorario.upsert({
-                        where: { dia_name: { dia: dia, name: bloque.nombre.toUpperCase() } },
+                        where: { dia_nombre: { dia: dia, nombre: bloque.nombre.toUpperCase() } },
                         update: { horaInicio: horaInicioDate, horaFin: horaFinDate },
                         create: {
                             dia: dia,
-                            name: bloque.nombre.toUpperCase(),
+                            nombre: bloque.nombre.toUpperCase(),
                             horaInicio: horaInicioDate,
                             horaFin: horaFinDate,
                         },
@@ -165,9 +165,9 @@ async function seedSalas() {
         const salasData: SalaData[] = JSON.parse(fileContent);
             for (const sala of salasData) {
                 await prisma.sala.upsert({
-                    where: { name: sala.nombre },
+                    where: { nombre: sala.nombre },
                     update: { capacidad: sala.capacidad, sede: sala.sede },
-                    create: { name: sala.nombre, capacidad: sala.capacidad, sede: sala.sede },
+                    create: { nombre: sala.nombre, capacidad: sala.capacidad, sede: sala.sede },
                 });
             }
         } catch (error) {
@@ -234,7 +234,7 @@ async function seedProfesoresYDisponibilidad() {
                     const dia = parts[0].trim().toUpperCase();
                     const nombreBloque = parts.slice(1).join('-').trim().toUpperCase();
                     const bloqueHorario = await prisma.bloqueHorario.findUnique({
-                        where: { dia_name: { dia: dia, name: nombreBloque } },
+                        where: { dia_nombre: { dia: dia, nombre: nombreBloque } },
                     });
 
                     if (bloqueHorario) {
@@ -447,6 +447,52 @@ async function seedEntidadesDesdeDemanda() {
 
 
 
+async function seedAsignacionesHorario() {
+    console.log('Seeding a sample AsignacionHorario...');
+    try {
+        const primerParalelo = await prisma.paralelo.findFirst({
+            where: { nrc: { not: null } } // Asegurarse de que tenga NRC para el ejemplo
+        });
+        const primeraSala = await prisma.sala.findFirst();
+        const primerBloque = await prisma.bloqueHorario.findFirst();
+        const primerPeriodo = await prisma.periodoAcademico.findFirst();
+
+        if (primerParalelo && primeraSala && primerBloque && primerPeriodo) {
+            await prisma.asignacionHorario.upsert({
+                where: {
+                    paraleloId_salaId_bloqueHorarioId_periodoAcademicoId: {
+                        paraleloId: primerParalelo.id,
+                        salaId: primeraSala.id,
+                        bloqueHorarioId: primerBloque.id,
+                        periodoAcademicoId: primerPeriodo.id,
+                    }
+                },
+                update: {},
+                create: {
+                    paraleloId: primerParalelo.id,
+                    salaId: primeraSala.id,
+                    bloqueHorarioId: primerBloque.id,
+                    periodoAcademicoId: primerPeriodo.id,
+                },
+            });
+            console.log('Created or found a sample AsignacionHorario.');
+        } else {
+            console.warn('Could not create sample AsignacionHorario because some required data was not found.');
+            if (!primerParalelo) console.log('Reason: No suitable Paralelo found.');
+            if (!primeraSala) console.log('Reason: No Sala found.');
+            if (!primerBloque) console.log('Reason: No BloqueHorario found.');
+            if (!primerPeriodo) console.log('Reason: No PeriodoAcademico found.');
+        }
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+            console.log('Sample AsignacionHorario already exists.');
+        } else {
+            console.error('Error seeding AsignacionHorario:', error);
+        }
+    }
+}
+
+
 // --- Función Principal del Seed ---
 async function main() {
     console.log(`Start seeding ...`);
@@ -457,6 +503,7 @@ async function main() {
     await seedSalas(); // Asegúrate que se implemente cuando tengas el JSON de salas
     await seedProfesoresYDisponibilidad();
     await seedEntidadesDesdeDemanda();
+    await seedAsignacionesHorario();
 
     console.log(`Seeding finished.`);
 }
