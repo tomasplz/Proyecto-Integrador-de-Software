@@ -29,7 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, Users, Eye, EyeOff, Download, MapPin, GraduationCap, Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
+import { Search, X, Users, Eye, EyeOff, Download, MapPin, GraduationCap, Check, Plus, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -130,9 +130,20 @@ export default function Schedule() {
   // Estado para controlar si mostrar todos los profesores o solo los disponibles
   const [showAllTeachers, setShowAllTeachers] = useState<{[key: string]: boolean}>({});
 
+  // Estado para controlar la expansión de paralelos (vista detallada vs condensada)
+  const [expandedCourses, setExpandedCourses] = useState<{[key: string]: boolean}>({});
+
   // Estado para controlar la creación de nuevos paralelos
   const [showCreateParaleloModal, setShowCreateParaleloModal] = useState(false);
   const [selectedCourseForParalelo, setSelectedCourseForParalelo] = useState<Course | null>(null);
+
+  // Función para alternar la expansión de un curso
+  const toggleCourseExpansion = (courseKey: string) => {
+    setExpandedCourses(prev => ({
+      ...prev,
+      [courseKey]: !prev[courseKey]
+    }));
+  };
 
   // Cache de cursos para mostrar información completa
   const cursosCache: Record<string, Course> = {};
@@ -268,19 +279,30 @@ export default function Schedule() {
           console.log("✅ Profesores cargados desde API:", teachersFromApi);
           console.log("📊 Total profesores:", teachersFromApi.length);
           
+          // Mapear los datos de la API al formato esperado por el frontend
+          const mappedTeachers = teachersFromApi.map((teacher: any) => ({
+            rut: teacher.rut,
+            name: teacher.nombre || teacher.name,
+            isAvailable: true, // Por defecto, todos los profesores están disponibles
+            maxSectionsPerWeek: teacher.maxSectionsPerWeek || 10,
+            courseOffer: teacher.courseOffer || [],
+            availability: teacher.availability || [],
+            schedule: teacher.schedule || []
+          }));
+          
           // Log detalles de algunos profesores para depuración
-          teachersFromApi.slice(0, 3).forEach((teacher: any, index: number) => {
-            console.log(`👨‍🏫 Profesor ${index + 1}:`, {
-              id: teacher.id,
+          mappedTeachers.slice(0, 3).forEach((teacher: Teacher, index: number) => {
+            console.log(`👨‍🏫 Profesor ${index + 1} (mapeado):`, {
               rut: teacher.rut,
               name: teacher.name,
               isAvailable: teacher.isAvailable,
-              courseOffer: teacher.courseOffer
+              courseOffer: teacher.courseOffer,
+              availability: teacher.availability
             });
           });
           
-          console.log("🔍 Profesores disponibles:", teachersFromApi.filter((t: any) => t.isAvailable).length);
-          setTeachers(teachersFromApi);
+          console.log("🔍 Profesores disponibles:", mappedTeachers.filter((t: Teacher) => t.isAvailable).length);
+          setTeachers(mappedTeachers);
         } else {
           console.error("❌ Error al cargar profesores desde API. Status:", teachersResponse.status);
           console.log("🔄 Fallback: usando array vacío");
@@ -1197,7 +1219,7 @@ export default function Schedule() {
                               className="p-1 align-top text-center relative"
                             >
                               <div
-                                className={`min-h-20 cursor-pointer transition-colors rounded ${
+                                className={`min-h-12 cursor-pointer transition-colors rounded ${
                                   content
                                     ? "bg-primary/10 hover:bg-primary/20"
                                     : "hover:bg-accent/50 border-2 border-dashed border-transparent hover:border-muted-foreground/20"
@@ -1218,7 +1240,7 @@ export default function Schedule() {
                                     time: slot.time,
                                     day: dayKey,
                                   }}
-                                  className="h-full flex flex-col gap-1 p-1"
+                                  className="h-full flex flex-col gap-0.5 p-0.5"
                                 >
                                   {/* Renderizar cursos de fondo (efecto cebolla) primero */}
                                   {backgroundSchedules.map((bg) => {
@@ -1232,35 +1254,20 @@ export default function Schedule() {
                                         key={bg.semester}
                                         className={`pointer-events-auto ${bg.opacity} flex-shrink-0`}
                                       >
-                                        <div className="p-1.5">
+                                        <div className="p-0.5">
                                           <div
-                                            className={`rounded px-2 py-1.5 text-xs font-medium border-2 border-dashed ${getCourseColor(
+                                            className={`rounded px-1 py-0.5 text-[7px] font-medium border border-dashed ${getCourseColor(
                                               bgContent.code
-                                            )} bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-md hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all`}
+                                            )} bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all`}
                                           >
                                             <div
-                                              className="font-semibold text-foreground truncate text-[10px]"
+                                              className="font-semibold text-foreground truncate"
                                               title={bgContent.name}
                                             >
-                                              {bgContent.name} {bgContent.paralelo && `(${bgContent.paralelo})`}
+                                              {bgContent.name.substring(0, 15)}...
                                             </div>
-                                            <div className="text-[8px] text-muted-foreground flex items-center justify-between mt-0.5">
-                                              <span className="truncate font-mono">
-                                                {bgContent.code}
-                                              </span>
-                                              <Badge
-                                                variant="outline"
-                                                className="text-[7px] px-1 py-0 h-auto bg-orange-100 dark:bg-orange-900/50 border-orange-300 dark:border-orange-700"
-                                              >
-                                                Sem {bg.semester}
-                                              </Badge>
-                                            </div>
-                                            <div className="flex items-center gap-1 mt-0.5 text-[8px] text-muted-foreground">
-                                              <Users className="h-2 w-2" />
-                                              <span>
-                                                Demanda:{" "}
-                                                {bgContent.demand}
-                                              </span>
+                                            <div className="text-[6px] text-muted-foreground">
+                                              Sem {bg.semester}
                                             </div>
                                           </div>
                                         </div>
@@ -1269,172 +1276,201 @@ export default function Schedule() {
                                   })}                                  {/* Curso actual del semestre seleccionado - debe aparecer DESPUÉS de los cursos de fondo */}
                                   {content ? (
                                     <div className="relative group flex-shrink-0">
-                                      <div className="p-2 bg-background/95 dark:bg-background/95 backdrop-blur-sm rounded">
+                                      <div className="p-0.5 bg-background/95 dark:bg-background/95 backdrop-blur-sm rounded">
                                         <div
-                                          className={`rounded px-3 py-2 text-xs font-medium border-2 ${getCourseColor(
-                                            content.code
-                                          )} shadow-lg hover:shadow-xl transition-all`}
-                                        >                                          <div
-                                            className="font-bold text-foreground truncate text-base"
-                                            title={content.name}
-                                          >
-                                            {content.name} {content.paralelo && `(${content.paralelo})`}
-                                          </div>
-                                          <div className="text-sm text-muted-foreground mt-1 font-mono">
-                                            {content.code}
-                                          </div>
-                                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                                            <Users className="h-4 w-4" />
-                                            <span>
-                                              Demanda: {content.demand}
-                                            </span>
-                                          </div>                                          {/* Sala sugerida - Solo mostrar información */}
-                                          {content.suggestedRoom && (
-                                            <div className="mt-2 p-1 bg-gray-50 dark:bg-gray-800 rounded text-xs">
-                                              <div className="flex items-center gap-1 text-muted-foreground">
-                                                <MapPin className="h-3 w-3" />
-                                                <span>Sugerida: {content.suggestedRoom}</span>
+                                          className={`rounded cursor-pointer transition-all ${
+                                            expandedCourses[content.key] 
+                                              ? `px-2 py-1 text-xs font-medium border-2 ${getCourseColor(content.code)} shadow-lg hover:shadow-xl`
+                                              : `px-1 py-0.5 text-[8px] font-medium border-2 ${getCourseColor(content.code)} shadow-md hover:shadow-lg`
+                                          }`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleCourseExpansion(content.key);
+                                          }}
+                                        >
+                                          {expandedCourses[content.key] ? (
+                                            // Vista expandida (información completa)
+                                            <>
+                                              {/* Nombre del curso completo */}
+                                              <div
+                                                className="font-bold text-foreground truncate text-xs"
+                                                title={content.name}
+                                              >
+                                                {content.name} {content.paralelo && `(${content.paralelo})`}
                                               </div>
-                                            </div>
-                                          )}                                          {/* Dropdown de sala seleccionada con buscador */}
-                                          <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                                            <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                                              <MapPin className="h-3 w-3" />
-                                              <span>Sala:</span>
-                                            </div>
-                                            <Popover 
-                                              open={openRoomPopover === `${slot.time}-${dayKey}`} 
-                                              onOpenChange={(open) => setOpenRoomPopover(open ? `${slot.time}-${dayKey}` : null)}
-                                            >
-                                              <PopoverTrigger asChild>
-                                                <Button
-                                                  variant="outline"
-                                                  role="combobox"
-                                                  aria-expanded={openRoomPopover === `${slot.time}-${dayKey}`}
-                                                  className="h-7 text-xs px-2 bg-white dark:bg-gray-900 justify-between w-full"
+
+                                              {/* Sala - Dropdown completo */}
+                                              <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+                                                <Popover 
+                                                  open={openRoomPopover === `${slot.time}-${dayKey}`} 
+                                                  onOpenChange={(open) => setOpenRoomPopover(open ? `${slot.time}-${dayKey}` : null)}
                                                 >
-                                                  {content.selectedRoom ? 
-                                                    getAvailableRooms(slot.time).find(room => room.nombre === content.selectedRoom)?.nombre || content.selectedRoom
-                                                    : "Seleccionar sala"
-                                                  }
-                                                  <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
-                                                </Button>
-                                              </PopoverTrigger>
-                                              <PopoverContent className="w-[300px] p-0" align="start">
-                                                <Command>
-                                                  <CommandInput placeholder="Buscar sala..." className="h-7" />
-                                                  <CommandEmpty>No se encontró ninguna sala.</CommandEmpty>
-                                                  <CommandGroup className="max-h-48 overflow-auto">
-                                                    {getAvailableRooms(slot.time).map((room) => (
-                                                      <CommandItem
-                                                        key={room.nombre}
-                                                        onSelect={() => {
-                                                          updateSelectedRoom(slot.time, dayKey, room.nombre);
-                                                          setOpenRoomPopover(null);
-                                                        }}
-                                                        className="cursor-pointer"
-                                                      >
-                                                        <Check
-                                                          className={`mr-2 h-3 w-3 ${
-                                                            content.selectedRoom === room.nombre ? "opacity-100" : "opacity-0"
-                                                          }`}
-                                                        />
-                                                        <div className="text-xs">
-                                                          <div className="font-medium">{room.nombre}</div>
-                                                          <div className="text-muted-foreground text-[10px]">
-                                                            {room.sede} • Cap: {room.capacidad || 'N/A'}
-                                                          </div>
-                                                        </div>
-                                                      </CommandItem>
-                                                    ))}
-                                                  </CommandGroup>
-                                                </Command>
-                                              </PopoverContent>
-                                            </Popover>
-                                          </div>                                          {/* Dropdown de profesor seleccionado con buscador */}
-                                          <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                                            <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                                              <GraduationCap className="h-3 w-3" />
-                                              <span>Profesor:</span>
-                                            </div>
-                                            <Popover 
-                                              open={openTeacherPopover === `${slot.time}-${dayKey}`} 
-                                              onOpenChange={(open) => {
-                                                if (open) {
-                                                  console.log(`🖱️ Abriendo dropdown de profesores para curso: ${content.code} en ${slot.time}`);
-                                                  console.log(`📊 Estado actual - Teachers length: ${teachers.length}`);
-                                                  console.log(`🔍 Profesores disponibles general:`, teachers.filter(t => t.isAvailable).map(t => `${t.name} (${t.rut})`));
-                                                }
-                                                setOpenTeacherPopover(open ? `${slot.time}-${dayKey}` : null);
-                                              }}
-                                            >
-                                              <PopoverTrigger asChild>
-                                                <Button
-                                                  variant="outline"
-                                                  role="combobox"
-                                                  aria-expanded={openTeacherPopover === `${slot.time}-${dayKey}`}
-                                                  className="h-7 text-xs px-2 bg-white dark:bg-gray-900 justify-between w-full"
+                                                  <PopoverTrigger asChild>
+                                                    <Button
+                                                      variant="outline"
+                                                      role="combobox"
+                                                      aria-expanded={openRoomPopover === `${slot.time}-${dayKey}`}
+                                                      className="h-5 text-[9px] px-1 bg-white dark:bg-gray-900 justify-between w-full"
+                                                    >
+                                                      <div className="flex items-center gap-1">
+                                                        <MapPin className="h-2 w-2" />
+                                                        <span className="truncate">
+                                                          {content.selectedRoom || "Sala"}
+                                                        </span>
+                                                      </div>
+                                                    </Button>
+                                                  </PopoverTrigger>
+                                                  <PopoverContent className="w-[300px] p-0" align="start">
+                                                    <Command>
+                                                      <CommandInput placeholder="Buscar sala..." className="h-7" />
+                                                      <CommandEmpty>No se encontró ninguna sala.</CommandEmpty>
+                                                      <CommandGroup className="max-h-48 overflow-auto">
+                                                        {getAvailableRooms(slot.time).map((room) => (
+                                                          <CommandItem
+                                                            key={room.nombre}
+                                                            onSelect={() => {
+                                                              updateSelectedRoom(slot.time, dayKey, room.nombre);
+                                                              setOpenRoomPopover(null);
+                                                            }}
+                                                            className="cursor-pointer"
+                                                          >
+                                                            <Check
+                                                              className={`mr-2 h-3 w-3 ${
+                                                                content.selectedRoom === room.nombre ? "opacity-100" : "opacity-0"
+                                                              }`}
+                                                            />
+                                                            <div className="text-xs">
+                                                              <div className="font-medium">{room.nombre}</div>
+                                                              <div className="text-muted-foreground text-[10px]">
+                                                                {room.sede} • Cap: {room.capacidad || 'N/A'}
+                                                              </div>
+                                                            </div>
+                                                          </CommandItem>
+                                                        ))}
+                                                      </CommandGroup>
+                                                    </Command>
+                                                  </PopoverContent>
+                                                </Popover>
+                                              </div>
+
+                                              {/* Profesor - Dropdown completo */}
+                                              <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+                                                <Popover 
+                                                  open={openTeacherPopover === `${slot.time}-${dayKey}`} 
+                                                  onOpenChange={(open) => {
+                                                    if (open) {
+                                                      console.log(`🖱️ Abriendo dropdown de profesores para curso: ${content.code} en ${slot.time}`);
+                                                    }
+                                                    setOpenTeacherPopover(open ? `${slot.time}-${dayKey}` : null);
+                                                  }}
                                                 >
-                                                  {content.selectedTeacher ? (
-                                                    (() => {
-                                                      const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
-                                                      return teacher ? teacher.name : content.selectedTeacher;
-                                                    })()
-                                                  ) : "Seleccionar profesor"}
-                                                  <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
-                                                </Button>
-                                              </PopoverTrigger>
-                                              <PopoverContent className="w-[300px] p-0" align="start">
-                                                <Command>
-                                                  <CommandInput placeholder="Buscar profesor..." className="h-7" />
-                                                  <CommandEmpty>No se encontró ningún profesor.</CommandEmpty>
-                                                  <div className="px-3 py-2 border-b border-border bg-muted/50">
-                                                    <div className="flex items-center space-x-2">
-                                                      <Switch
-                                                        id={`show-all-teachers-${slot.time}-${dayKey}`}
-                                                        checked={showAllTeachers[`${slot.time}-${dayKey}`] || false}
-                                                        onCheckedChange={(checked) => {
-                                                          const key = `${slot.time}-${dayKey}`;
-                                                          setShowAllTeachers(prev => ({
-                                                            ...prev,
-                                                            [key]: checked
-                                                          }));
-                                                          console.log(`🔄 Toggle profesores para ${key}: ${checked ? 'Mostrar todos' : 'Solo disponibles'}`);
-                                                        }}
-                                                      />
-                                                      <Label htmlFor={`show-all-teachers-${slot.time}-${dayKey}`} className="text-xs cursor-pointer">
-                                                        {showAllTeachers[`${slot.time}-${dayKey}`] ? 'Mostrar todos' : 'Solo disponibles'}
-                                                      </Label>
-                                                    </div>
-                                                  </div>
-                                                  <CommandGroup className="max-h-48 overflow-auto">
-                                                    {getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).map((teacher) => (
-                                                      <CommandItem
-                                                        key={teacher.rut}
-                                                        onSelect={() => {
-                                                          updateSelectedTeacher(slot.time, dayKey, teacher.rut);
-                                                          setOpenTeacherPopover(null);
-                                                        }}
-                                                        className="cursor-pointer"
-                                                      >
-                                                        <Check
-                                                          className={`mr-2 h-3 w-3 ${
-                                                            content.selectedTeacher === teacher.rut ? "opacity-100" : "opacity-0"
-                                                          }`}
-                                                        />
-                                                        <div className="text-xs">
-                                                          <div className="font-medium">{teacher.name}</div>
-                                                          <div className="text-muted-foreground text-[10px]">
-                                                            {teacher.rut} • {teacher.isAvailable ? 'Disponible' : 'No disponible'}
-                                                          </div>
+                                                  <PopoverTrigger asChild>
+                                                    <Button
+                                                      variant="outline"
+                                                      role="combobox"
+                                                      aria-expanded={openTeacherPopover === `${slot.time}-${dayKey}`}
+                                                      className="h-5 text-[9px] px-1 bg-white dark:bg-gray-900 justify-between w-full"
+                                                    >
+                                                      <div className="flex items-center gap-1">
+                                                        <GraduationCap className="h-2 w-2" />
+                                                        <span className="truncate">
+                                                          {content.selectedTeacher ? (
+                                                            (() => {
+                                                              const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
+                                                              return teacher ? teacher.name : content.selectedTeacher;
+                                                            })()
+                                                          ) : "Profesor"}
+                                                        </span>
+                                                      </div>
+                                                    </Button>
+                                                  </PopoverTrigger>
+                                                  <PopoverContent className="w-[300px] p-0" align="start">
+                                                    <Command>
+                                                      <CommandInput placeholder="Buscar profesor..." className="h-7" />
+                                                      <CommandEmpty>No se encontró ningún profesor.</CommandEmpty>
+                                                      <div className="px-3 py-2 border-b border-border bg-muted/50">
+                                                        <div className="flex items-center space-x-2">
+                                                          <Switch
+                                                            id={`show-all-teachers-${slot.time}-${dayKey}`}
+                                                            checked={showAllTeachers[`${slot.time}-${dayKey}`] || false}
+                                                            onCheckedChange={(checked) => {
+                                                              const key = `${slot.time}-${dayKey}`;
+                                                              setShowAllTeachers(prev => ({
+                                                                ...prev,
+                                                                [key]: checked
+                                                              }));
+                                                            }}
+                                                          />
+                                                          <Label htmlFor={`show-all-teachers-${slot.time}-${dayKey}`} className="text-xs cursor-pointer">
+                                                            {showAllTeachers[`${slot.time}-${dayKey}`] ? 'Mostrar todos' : 'Solo disponibles'}
+                                                          </Label>
                                                         </div>
-                                                      </CommandItem>
-                                                    ))}
-                                                  </CommandGroup>
-                                                </Command>
-                                              </PopoverContent>
-                                            </Popover>
-                                          </div>
+                                                      </div>
+                                                      <CommandGroup className="max-h-48 overflow-auto">
+                                                        {getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).map((teacher) => (
+                                                          <CommandItem
+                                                            key={teacher.rut}
+                                                            onSelect={() => {
+                                                              updateSelectedTeacher(slot.time, dayKey, teacher.rut);
+                                                              setOpenTeacherPopover(null);
+                                                            }}
+                                                            className="cursor-pointer"
+                                                          >
+                                                            <Check
+                                                              className={`mr-2 h-3 w-3 ${
+                                                                content.selectedTeacher === teacher.rut ? "opacity-100" : "opacity-0"
+                                                              }`}
+                                                            />
+                                                            <div className="text-xs">
+                                                              <div className="font-medium">{teacher.name}</div>
+                                                              <div className="text-muted-foreground text-[10px]">
+                                                                {teacher.rut} • {teacher.isAvailable ? 'Disponible' : 'No disponible'}
+                                                              </div>
+                                                            </div>
+                                                          </CommandItem>
+                                                        ))}
+                                                      </CommandGroup>
+                                                    </Command>
+                                                  </PopoverContent>
+                                                </Popover>
+                                              </div>
+                                            </>
+                                          ) : (
+                                            // Vista condensada (información mínima)
+                                            <>
+                                              {/* Nombre del curso - Ultra compacto */}
+                                              <div
+                                                className="font-bold text-foreground truncate leading-tight"
+                                                title={content.name}
+                                              >
+                                                {content.name.substring(0, 20)}...
+                                              </div>
+
+                                              {/* Información compacta en una línea */}
+                                              <div className="flex items-center justify-between mt-0.5 gap-1">
+                                                {/* Sala compacta */}
+                                                <div className="flex items-center gap-0.5">
+                                                  <MapPin className="h-2 w-2" />
+                                                  <span className="text-[7px] truncate">
+                                                    {content.selectedRoom?.substring(0, 6) || "Sala"}
+                                                  </span>
+                                                </div>
+
+                                                {/* Profesor compacto */}
+                                                <div className="flex items-center gap-0.5">
+                                                  <GraduationCap className="h-2 w-2" />
+                                                  <span className="text-[7px] truncate">
+                                                    {content.selectedTeacher ? (
+                                                      (() => {
+                                                        const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
+                                                        return teacher ? teacher.name.substring(0, 8) : content.selectedTeacher.substring(0, 8);
+                                                      })()
+                                                    ) : "Prof"}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            </>
+                                          )}
                                           
                                           {/* Botón de eliminar curso */}
                                           <button
@@ -1442,9 +1478,9 @@ export default function Schedule() {
                                               e.stopPropagation();
                                               removeCourseFromSchedule(content.key);
                                             }}
-                                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                            className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                           >
-                                            <X className="h-3 w-3" />
+                                            <X className="h-2 w-2" />
                                           </button>
                                         </div>
                                       </div>
@@ -1458,8 +1494,8 @@ export default function Schedule() {
                                       const bgContent = bgSlot ? getCellContent(bgSlot, dayKey) : null;
                                       return !bgContent;
                                     }) ? (
-                                      <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
-                                        Arrastra un curso aquí
+                                      <div className="h-full flex items-center justify-center text-muted-foreground text-[10px] opacity-50">
+                                        Arrastra curso
                                       </div>
                                     ) : null
                                   )}
