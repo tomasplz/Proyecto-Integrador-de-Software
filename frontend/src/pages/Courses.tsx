@@ -50,7 +50,15 @@ export default function Courses() {
     const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.code.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesSemester = selectedSemester === 'all' || course.semester === selectedSemester
-    const matchesCareer = selectedCareer === 'all' || course.career === selectedCareer
+    
+    // Corregir el filtrado de carrera: comparar el código de la carrera con el código seleccionado
+    let matchesCareer = selectedCareer === 'all'
+    if (!matchesCareer && selectedCareer !== 'all') {
+      // Buscar la carrera seleccionada por ID y comparar su código con el código del curso
+      const selectedCareerObj = careers.find(c => c.id.toString() === selectedCareer)
+      matchesCareer = selectedCareerObj ? course.career === selectedCareerObj.code : false
+    }
+    
     return matchesSearch && matchesSemester && matchesCareer
   })
   // Calculate pagination
@@ -66,10 +74,13 @@ export default function Courses() {
       return Array.from(new Set(courses.map(course => course.semester))).sort((a, b) => a - b)
     } else {
       // Filtrar semestres según la carrera seleccionada
+      const selectedCareerObj = careers.find(c => c.id.toString() === selectedCareer)
+      if (!selectedCareerObj) return []
+      
       return Array.from(
         new Set(
           courses
-            .filter(course => course.career === selectedCareer)
+            .filter(course => course.career === selectedCareerObj.code)
             .map(course => course.semester)
         )
       ).sort((a, b) => a - b)
@@ -243,7 +254,12 @@ export default function Courses() {
           <p className="text-3xl font-bold text-primary">
             {selectedCareer === 'all' 
               ? Math.max(...courses.map((c) => c.semester))
-              : Math.max(...courses.filter(c => c.career === selectedCareer).map((c) => c.semester))
+              : (() => {
+                  const selectedCareerObj = careers.find(c => c.id.toString() === selectedCareer)
+                  if (!selectedCareerObj) return 0
+                  const careerCourses = courses.filter(c => c.career === selectedCareerObj.code)
+                  return careerCourses.length > 0 ? Math.max(...careerCourses.map((c) => c.semester)) : 0
+                })()
             }
           </p>
         </div>
