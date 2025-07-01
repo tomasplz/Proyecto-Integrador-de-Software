@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Clock, Users, MapPin, Calendar, User } from "lucide-react";
+import { Search, Clock, Users, MapPin, Calendar, User, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -116,6 +116,7 @@ export default function Classrooms() {
   // Filtros
   const [sedeFilter, setSedeFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [ocupacionFilter, setOcupacionFilter] = useState<string>("all");
   
   // Modal
   const [selectedSala, setSelectedSala] = useState<Sala | null>(null);
@@ -135,7 +136,6 @@ export default function Classrooms() {
           throw new Error("Error al cargar las salas");
         }
         const salasData = await salasResponse.json();
-        setSalas(salasData);
         
         // Cargar asignaciones
         const asignacionesResponse = await fetch(`${API_BASE_URL}/asignaciones-horario`);
@@ -143,7 +143,21 @@ export default function Classrooms() {
           throw new Error("Error al cargar las asignaciones");
         }
         const asignacionesData = await asignacionesResponse.json();
+        
+        // Establecer datos en el estado
+        setSalas(salasData);
         setAsignaciones(asignacionesData);
+        
+        // Ordenar las salas por ocupación desde el inicio
+        const salasOrdenadas = salasData.sort((a: Sala, b: Sala) => {
+          const asignacionesA = asignacionesData.filter((asig: AsignacionHorario) => asig.sala.id === a.id);
+          const asignacionesB = asignacionesData.filter((asig: AsignacionHorario) => asig.sala.id === b.id);
+          const ocupacionA = asignacionesA.length;
+          const ocupacionB = asignacionesB.length;
+          return ocupacionB - ocupacionA; // Orden descendente (mayor ocupación primero)
+        });
+        
+        setFilteredSalas(salasOrdenadas);
         
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -172,8 +186,32 @@ export default function Classrooms() {
       );
     }
     
+    // Filtrar por ocupación
+    if (ocupacionFilter !== "all") {
+      filtered = filtered.filter(sala => {
+        const asignacionesSala = getAsignacionesPorSala(sala.id);
+        const tieneClases = asignacionesSala.length > 0;
+        
+        if (ocupacionFilter === "ocupadas") {
+          return tieneClases;
+        } else if (ocupacionFilter === "libres") {
+          return !tieneClases;
+        }
+        return true;
+      });
+    }
+    
+    // Ordenar por porcentaje de ocupación (de mayor a menor)
+    filtered = filtered.sort((a, b) => {
+      const asignacionesA = getAsignacionesPorSala(a.id);
+      const asignacionesB = getAsignacionesPorSala(b.id);
+      const ocupacionA = asignacionesA.length;
+      const ocupacionB = asignacionesB.length;
+      return ocupacionB - ocupacionA; // Orden descendente
+    });
+    
     setFilteredSalas(filtered);
-  }, [salas, sedeFilter, searchTerm]);
+  }, [salas, sedeFilter, searchTerm, ocupacionFilter, asignaciones]);
 
   // Obtener estadísticas
   const totalSalas = salas.length;
@@ -187,6 +225,67 @@ export default function Classrooms() {
 
   // Obtener sedes únicas
   const sedes = Array.from(new Set(salas.map(sala => sala.sede))).sort();
+
+  // Detectar conflictos
+  const detectarConflictos = () => {
+    const conflictos: string[] = [];
+    
+    // Agrupar asignaciones por día y bloque
+    const asignacionesPorBloqueYDia = new Map<string, AsignacionHorario[]>();
+    
+    asignaciones.forEach(asignacion => {
+      const clave = `${asignacion.bloqueHorario.dia}-${asignacion.bloqueHorario.nombre}`;
+      if (!asignacionesPorBloqueYDia.has(clave)) {
+        asignacionesPorBloqueYDia.set(clave, []);
+      }
+      asignacionesPorBloqueYDia.get(clave)!.push(asignacion);
+    });
+    
+    // Verificar conflictos
+    asignacionesPorBloqueYDia.forEach((asignacionesBloque, claveBloque) => {
+      const [dia, bloque] = claveBloque.split('-');
+      
+      // Conflicto 1: Profesor con múltiples clases en el mismo bloque
+      const profesoresPorBloque = new Map<number, AsignacionHorario[]>();
+      asignacionesBloque.forEach(asignacion => {
+        if (asignacion.paralelo.profesorId) {
+          if (!profesoresPorBloque.has(asignacion.paralelo.profesorId)) {
+            profesoresPorBloque.set(asignacion.paralelo.profesorId, []);
+          }
+          profesoresPorBloque.get(asignacion.paralelo.profesorId)!.push(asignacion);
+        }
+      });
+      
+      profesoresPorBloque.forEach((asignacionesProfesor, profesorId) => {
+        if (asignacionesProfesor.length > 1) {
+          const nombreProfesor = asignacionesProfesor[0].paralelo.profesor?.name || `ID: ${profesorId}`;
+          const asignaturas = asignacionesProfesor.map(a => a.paralelo.asignatura?.name || 'Sin nombre').join(', ');
+          conflictos.push(`⚠️ CONFLICTO DE PROFESOR: ${nombreProfesor} tiene ${asignacionesProfesor.length} clases en ${dia} ${bloque} (${asignaturas})`);
+        }
+      });
+      
+      // Conflicto 2: Sala con múltiples paralelos en el mismo bloque
+      const salasPorBloque = new Map<number, AsignacionHorario[]>();
+      asignacionesBloque.forEach(asignacion => {
+        if (!salasPorBloque.has(asignacion.sala.id)) {
+          salasPorBloque.set(asignacion.sala.id, []);
+        }
+        salasPorBloque.get(asignacion.sala.id)!.push(asignacion);
+      });
+      
+      salasPorBloque.forEach((asignacionesSala, salaId) => {
+        if (asignacionesSala.length > 1) {
+          const nombreSala = asignacionesSala[0].sala.nombre;
+          const paralelos = asignacionesSala.map(a => `${a.paralelo.asignatura?.code || 'Sin código'}-${a.paralelo.nombre}`).join(', ');
+          conflictos.push(`🏫 CONFLICTO DE SALA: ${nombreSala} tiene ${asignacionesSala.length} paralelos en ${dia} ${bloque} (${paralelos})`);
+        }
+      });
+    });
+    
+    return conflictos;
+  };
+
+  const conflictos = detectarConflictos();
 
   // Abrir modal con horario detallado de una sala
   const openSalaModal = (sala: Sala) => {
@@ -337,6 +436,27 @@ export default function Classrooms() {
         </p>
       </div>
 
+      {/* Alertas de conflictos */}
+      {conflictos.length > 0 && (
+        <div className="mb-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <h3 className="text-lg font-semibold text-red-800">
+                Se detectaron {conflictos.length} conflictos de horario
+              </h3>
+            </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {conflictos.map((conflicto, index) => (
+                <div key={index} className="text-sm text-red-700 bg-red-100 p-2 rounded">
+                  {conflicto}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow">
@@ -395,6 +515,19 @@ export default function Classrooms() {
                 {sedes.map(sede => (
                   <SelectItem key={sede} value={sede}>{sede}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-full md:w-48">
+            <Select value={ocupacionFilter} onValueChange={setOcupacionFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrar por ocupación" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las aulas</SelectItem>
+                <SelectItem value="ocupadas">Aulas ocupadas</SelectItem>
+                <SelectItem value="libres">Aulas libres</SelectItem>
               </SelectContent>
             </Select>
           </div>
