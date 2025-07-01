@@ -29,7 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, Users, Eye, EyeOff, Download, MapPin, GraduationCap, Check, Plus, Trash2 } from "lucide-react";
+import { Search, X, Users, Eye, EyeOff, Download, MapPin, GraduationCap, Check, Plus, Trash2, AlertTriangle, ChevronDown, ChevronUp, Bell, ExclamationTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -162,6 +162,160 @@ export default function Schedule() {
   const [showCreateParaleloModal, setShowCreateParaleloModal] = useState(false);
   const [selectedCourseForParalelo, setSelectedCourseForParalelo] = useState<Course | null>(null);
 
+  // Estados para manejar conflictos
+  const [conflicts, setConflicts] = useState<string[]>([]);
+  const [showConflictDetails, setShowConflictDetails] = useState(false);
+  const [lastConflictNotification, setLastConflictNotification] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState(false);
+
+  // Función para detectar conflictos en el horario actual
+  const detectConflicts = (schedule: TimeSlot[]) => {
+    const conflictList: string[] = [];
+    
+    // Agrupar TODAS las asignaciones de TODOS los horarios por día y tiempo
+    const assignmentsByTimeAndDay = new Map<string, ScheduledCourse[]>();
+    
+    // Primero, agregar el horario que se está verificando
+    const currentKey = getScheduleKey(selectedCareer, selectedSemester);
+    schedule.forEach(slot => {
+      dayKeys.forEach(day => {
+        const course = slot[day] as ScheduledCourse | null;
+        if (course && course.selectedTeacher && course.selectedRoom) {
+          const key = `${slot.time}-${day}`;
+          if (!assignmentsByTimeAndDay.has(key)) {
+            assignmentsByTimeAndDay.set(key, []);
+          }
+          // Agregar información del semestre y carrera
+          const courseWithInfo = {
+            ...course,
+            _scheduleInfo: `${selectedCareer?.split('-')[0] || selectedCareer} - Semestre ${selectedSemester}`,
+            name: course.name || cursosCache[course.key]?.name || course.code
+          };
+          assignmentsByTimeAndDay.get(key)!.push(courseWithInfo);
+        }
+      });
+    });
+    
+    // Luego, agregar TODOS los otros horarios guardados
+    Object.entries(schedulesByCareerAndSemester).forEach(([scheduleKey, savedSchedule]) => {
+      // Saltar el horario actual ya que ya lo agregamos arriba
+      if (scheduleKey === currentKey) return;
+      
+      const [career, semester] = scheduleKey.split('_');
+      savedSchedule.forEach(slot => {
+        dayKeys.forEach(day => {
+          const course = slot[day] as ScheduledCourse | null;
+          if (course && course.selectedTeacher && course.selectedRoom) {
+            const key = `${slot.time}-${day}`;
+            if (!assignmentsByTimeAndDay.has(key)) {
+              assignmentsByTimeAndDay.set(key, []);
+            }
+            // Agregar información del semestre y carrera
+            const courseWithInfo = {
+              ...course,
+              _scheduleInfo: `${career?.split('-')[0] || career} - Semestre ${semester}`,
+              name: course.name || cursosCache[course.key]?.name || course.code
+            };
+            assignmentsByTimeAndDay.get(key)!.push(courseWithInfo);
+          }
+        });
+      });
+    });
+    
+    // Verificar conflictos
+    assignmentsByTimeAndDay.forEach((courses, timeDay) => {
+      const [time, day] = timeDay.split('-');
+      const dayName = days[dayKeys.indexOf(day as typeof dayKeys[number])];
+      
+      // Mapear tiempo a bloque
+      const timeToBlock: { [key: string]: string } = {
+        '08:10 - 09:40': 'A',
+        '09:55 - 11:25': 'B', 
+        '11:40 - 13:10': 'C',
+        '13:10 - 14:30': 'C2',
+        '14:30 - 16:00': 'D',
+        '16:15 - 17:45': 'E',
+        '18:00 - 19:30': 'F',
+        '19:45 - 21:15': 'G',
+        '21:30 - 23:00': 'H'
+      };
+      
+      const bloque = timeToBlock[time] || 'BLOQUE DESCONOCIDO';
+      
+      // Agrupar por profesor
+      const coursesByTeacher = new Map<string, any[]>();
+      courses.forEach(course => {
+        if (course.selectedTeacher) {
+          const teacherKey = course.selectedTeacher;
+          if (!coursesByTeacher.has(teacherKey)) {
+            coursesByTeacher.set(teacherKey, []);
+          }
+          coursesByTeacher.get(teacherKey)!.push(course);
+        }
+      });
+        
+      // Detectar conflictos de profesor
+      coursesByTeacher.forEach((teacherCourses, teacher) => {
+        if (teacherCourses.length > 1) {
+          const teacherName = teachers.find(t => t.rut === teacher)?.name || teacher || 'Profesor no definido';
+          const courseDetails = teacherCourses.map(c => {
+            const courseName = c.name || c.code || 'Asignatura';
+            const courseParalelo = c.paralelo || 'C1';
+            const scheduleInfo = c._scheduleInfo || 'Sin información';
+            return `- ${courseName} ${courseParalelo} (${scheduleInfo})`;
+          }).join('\n');
+          
+          conflictList.push(`PROFESOR: ${teacherName} tiene múltiples clases en BLOQUE ${bloque}\n${courseDetails}`);
+        }
+      });
+
+      // Agrupar por sala
+      const coursesByRoom = new Map<string, any[]>();
+      courses.forEach(course => {
+        if (course.selectedRoom) {
+          const roomKey = course.selectedRoom;
+          if (!coursesByRoom.has(roomKey)) {
+            coursesByRoom.set(roomKey, []);
+          }
+          coursesByRoom.get(roomKey)!.push(course);
+        }
+      });
+
+      // Detectar conflictos de sala
+      coursesByRoom.forEach((roomCourses, room) => {
+        if (roomCourses.length > 1) {
+          const courseDetails = roomCourses.map(c => {
+            const courseName = c.name || c.code || 'Asignatura';
+            const courseParalelo = c.paralelo || 'C1';
+            const scheduleInfo = c._scheduleInfo || 'Sin información';
+            return `- ${courseName} ${courseParalelo} (${scheduleInfo})`;
+          }).join('\n');
+          
+          conflictList.push(`SALA: ${room} tiene múltiples clases en BLOQUE ${bloque}\n${courseDetails}`);
+        }
+      });
+    });
+    
+    return conflictList;
+  };
+
+  // Función para actualizar conflictos cuando cambia el horario
+  const updateConflicts = () => {
+    const currentSchedule = getCurrentSchedule();
+    const newConflicts = detectConflicts(currentSchedule);
+    setConflicts(newConflicts);
+  };
+
+  // Función para mostrar notificación de conflicto
+  const showConflictNotification = (message: string) => {
+    setLastConflictNotification(message);
+    setShowNotification(true);
+    // Ocultar la notificación después de 5 segundos
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 5000);
+  };
+
   // Función para alternar la expansión de un curso
   const toggleCourseExpansion = (courseKey: string) => {
     setExpandedCourses(prev => ({
@@ -277,6 +431,13 @@ export default function Schedule() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [schedulesByCareerAndSemester]);
+
+  // Efecto para actualizar conflictos cuando cambien los horarios
+  useEffect(() => {
+    const currentSchedule = getCurrentSchedule();
+    const newConflicts = detectConflicts(currentSchedule);
+    setConflicts(newConflicts);
+  }, [schedulesByCareerAndSemester, selectedCareer, selectedSemester]);
 
   // Función helper para generar clave única de carrera + semestre
   const getScheduleKey = (career: string, semester: string) => {
@@ -753,11 +914,28 @@ export default function Schedule() {
         const currentSchedule =
           prevSchedules[scheduleKey] ||
           defaultTimeSlots.map((slot) => ({ ...slot }));
+        const newSchedule = currentSchedule.map((slot) =>
+          slot.time === time ? { ...slot, [day]: scheduledCourse } : slot
+        );
+        
+        // Detectar conflictos en el nuevo horario
+        const newConflicts = detectConflicts(newSchedule);
+        const previousConflictCount = conflicts.length;
+        
+        // Actualizar los conflictos
+        setConflicts(newConflicts);
+        
+        // Si hay nuevos conflictos, mostrar notificación
+        if (newConflicts.length > previousConflictCount) {
+          const newConflictMessages = newConflicts.slice(previousConflictCount);
+          newConflictMessages.forEach(conflict => {
+            showConflictNotification(`¡Conflicto detectado! ${conflict}`);
+          });
+        }
+        
         return {
           ...prevSchedules,
-          [scheduleKey]: currentSchedule.map((slot) =>
-            slot.time === time ? { ...slot, [day]: scheduledCourse } : slot
-          ),
+          [scheduleKey]: newSchedule,
         };
       });
 
@@ -1146,6 +1324,26 @@ export default function Schedule() {
     const slot = currentSchedule.find(s => s.time === time);
     const currentCourse = slot?.[day] as ScheduledCourse;
     
+    // Verificar conflictos ANTES de actualizar
+    const tempSchedule = currentSchedule.map((scheduleSlot) =>
+      scheduleSlot.time === time
+        ? {
+            ...scheduleSlot,
+            [day]: scheduleSlot[day] ? { ...scheduleSlot[day], selectedRoom: roomName } : null,
+          }
+        : scheduleSlot
+    );
+    
+    const newConflicts = detectConflicts(tempSchedule);
+    if (newConflicts.length > 0) {
+      const roomConflicts = newConflicts.filter(conflict => 
+        conflict.includes('sala') && conflict.includes(roomName)
+      );
+      if (roomConflicts.length > 0) {
+        showConflictNotification(`⚠️ Conflicto de sala: ${roomConflicts[0]}`);
+      }
+    }
+    
     if (currentCourse && currentCourse.selectedRoom !== roomName) {
       try {
         // Formatear los nombres de sala con el prefijo de sede
@@ -1217,6 +1415,27 @@ export default function Schedule() {
     // Encontrar el curso actual para actualizar en la base de datos
     const slot = currentSchedule.find(s => s.time === time);
     const currentCourse = slot?.[day] as ScheduledCourse;
+    
+    // Verificar conflictos ANTES de actualizar
+    const tempSchedule = currentSchedule.map((scheduleSlot) =>
+      scheduleSlot.time === time
+        ? {
+            ...scheduleSlot,
+            [day]: scheduleSlot[day] ? { ...scheduleSlot[day], selectedTeacher: teacherRut } : null,
+          }
+        : scheduleSlot
+    );
+    
+    const newConflicts = detectConflicts(tempSchedule);
+    if (newConflicts.length > 0) {
+      const teacherName = teachers.find(t => t.rut === teacherRut)?.name || teacherRut;
+      const teacherConflicts = newConflicts.filter(conflict => 
+        conflict.includes('profesor') && conflict.includes(teacherName)
+      );
+      if (teacherConflicts.length > 0) {
+        showConflictNotification(`⚠️ Conflicto de profesor: ${teacherConflicts[0]}`);
+      }
+    }
     
     if (currentCourse && currentCourse.selectedTeacher !== teacherRut) {
       try {
@@ -1307,7 +1526,53 @@ export default function Schedule() {
       onDragEnd={handleDragEnd}
       collisionDetection={closestCorners}
     >
-      <div className="flex h-screen w-full">
+      <div className="flex h-screen w-full relative">
+        {/* Contador de conflictos flotante */}
+        {conflicts.length > 0 && (
+          <div className="fixed bottom-4 right-4 z-50">
+            <button
+              onClick={() => setShowConflictDetails(!showConflictDetails)}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-colors"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              <span className="font-medium">{conflicts.length} Conflicto{conflicts.length !== 1 ? 's' : ''}</span>
+              {showConflictDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+            
+            {/* Barra expandible de detalles de conflictos */}
+            {showConflictDetails && (
+              <div className="absolute bottom-full right-0 mb-2 w-80 bg-white rounded-lg shadow-xl border border-red-200 overflow-hidden">
+                <div className="bg-red-50 px-4 py-2 border-b border-red-200">
+                  <h3 className="font-medium text-red-800">Detalles de Conflictos</h3>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {conflicts.map((conflict, index) => (
+                    <div key={index} className="px-4 py-2 border-b border-gray-100 last:border-b-0">
+                      <p className="text-sm text-red-700">{conflict}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Notificación de conflicto temporal */}
+        {showNotification && lastConflictNotification && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top">
+            <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="font-medium">{lastConflictNotification}</span>
+              <button
+                onClick={() => setShowNotification(false)}
+                className="ml-2 hover:bg-red-600 rounded p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Panel lateral izquierdo - Lista de cursos */}
         <div className="w-80 border-r bg-card p-4 flex-shrink-0">
           <div className="space-y-4">
