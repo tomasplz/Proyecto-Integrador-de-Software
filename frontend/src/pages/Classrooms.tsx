@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import type { Classroom, TimeSlotData, ScheduledCourse } from '@/lib/types'
+import type { Classroom, TimeSlotData, ScheduledCourse, Teacher } from '@/lib/types'
 import classroomsData from '@/lib/classrooms.json'
 import timeSlotsData from '@/lib/timeSlot.json'
 import { useSedeContext } from '@/lib/sede-context'
@@ -51,6 +51,7 @@ export default function Classrooms() {
   const [bloques, setBloques] = useState<string[]>([])
   const [schedule, setSchedule] = useState<ClassroomTimeSlot[]>(defaultTimeSlots)
   const [classrooms, setClassrooms] = useState<Classroom[]>([])
+  const [teachers, setTeachers] = useState<Teacher[]>([])
   const [selectedCell, setSelectedCell] = useState<{ time: string; day: keyof Omit<ClassroomTimeSlot, 'time'> } | null>(null)
   const [scheduleData, setScheduleData] = useState<ScheduleByCareerAndSemester>({})
 
@@ -147,6 +148,22 @@ export default function Classrooms() {
       setClassrooms(classroomsData as Classroom[])
     }, 500)
 
+    // Load teachers data
+    const loadTeachers = async () => {
+      try {
+        const teachersResponse = await fetch('http://localhost:3000/profesores');
+        if (teachersResponse.ok) {
+          const teachersFromApi = await teachersResponse.json();
+          console.log('Profesores cargados para salas:', teachersFromApi.length);
+          setTeachers(teachersFromApi);
+        }
+      } catch (error) {
+        console.error('Error cargando profesores:', error);
+      }
+    };
+
+    loadTeachers();
+
     // Load schedule data and set up listener for changes
     loadScheduleData()
     
@@ -201,15 +218,36 @@ export default function Classrooms() {
     fetch('http://localhost:3000/bloques-horario')
       .then(res => res.json())
       .then((data) => {
+        console.log('Bloques horario recibidos:', data)
         setBloquesHorario(data)
-        // Extraer días únicos y bloques únicos ordenados
+        // Extraer días únicos y bloques únicos ordenados alfabéticamente
         const uniqueDias = Array.from(new Set(data.map((b: any) => b.dia)))
         setDias(uniqueDias)
-        const uniqueBloques = Array.from(new Set(data.map((b: any) => b.name))).sort()
+        const uniqueBloques = Array.from(new Set(data.map((b: any) => b.nombre))).sort()
         setBloques(uniqueBloques)
       })
       .catch(console.error)
   }, [])
+
+  // --- NUEVO: Función para obtener información del horario de un bloque ---
+  const getBloqueInfo = (bloque: string, dia: string) => {
+    const bloqueHorarioInfo = bloquesHorario.find(bh => bh.nombre === bloque && bh.dia === dia)
+    if (!bloqueHorarioInfo) return null
+    
+    // Extraer las horas de inicio y fin
+    const horaInicio = new Date(bloqueHorarioInfo.horaInicio).toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: 'UTC' 
+    })
+    const horaFin = new Date(bloqueHorarioInfo.horaFin).toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: 'UTC' 
+    })
+    
+    return `${horaInicio}-${horaFin}`
+  }
 
   // --- NUEVO: Generar grilla dinámica de horarios ---
   const dynamicTimeSlots = useMemo(() => {
@@ -218,7 +256,7 @@ export default function Classrooms() {
       const slot: any = { bloque };
       dias.forEach((dia) => {
         // Buscar el bloqueHorario correspondiente
-        const found = bloquesHorario.find(bh => bh.dia === dia && bh.name === bloque)
+        const found = bloquesHorario.find(bh => bh.dia === dia && bh.nombre === bloque)
         slot[dia] = found ? '' : undefined // Inicialmente vacío
       })
       return slot
@@ -233,7 +271,7 @@ export default function Classrooms() {
       const row: any = { bloque };
       dias.forEach((dia) => {
         // Buscar el bloqueHorario correspondiente
-        const bh = bloquesHorario.find(bh => bh.dia === dia && bh.name === bloque);
+        const bh = bloquesHorario.find(bh => bh.dia === dia && bh.nombre === bloque);
         if (!bh) {
           row[dia] = null;
           return;
@@ -259,13 +297,20 @@ export default function Classrooms() {
               // Si no hay campo bloque, intentar cruce por hora
               const horaStr = `${bh.horaInicio.slice(11,16)} - ${bh.horaFin.slice(11,16)}`;
               if (slot.time === horaStr) {
-                slotBloque = bh.name;
+                slotBloque = bh.nombre;
               }
             }
-            if (slotBloque === bh.name) {
+            if (slotBloque === bh.nombre) {
               const course = slot[slotDayKey];
               if (course && course.selectedRoom === currentClassroom.nombre) {
-                asignacion = `${course.name} - ${course.code}`;
+                // Obtener información del profesor
+                let professorInfo = '';
+                if (course.selectedTeacher) {
+                  // Buscar el profesor por RUT para obtener su nombre
+                  const teacher = teachers.find(t => t.rut === course.selectedTeacher);
+                  professorInfo = teacher ? ` • Prof: ${teacher.name}` : ` • Prof: ${course.selectedTeacher}`;
+                }
+                asignacion = `${course.name} - ${course.code}${professorInfo}`;
               }
             }
           });
@@ -355,8 +400,17 @@ export default function Classrooms() {
               <tbody>
                 {classroomScheduleMatrix.map((slot, index) => (
                   <tr key={index} className="border-b transition-colors hover:bg-muted/50">
-                    <td className="p-9 align-middle font-medium text-sm bg-muted/25">
-                      {slot.bloque}
+                    <td className="p-4 align-middle text-center bg-muted/25">
+                      <div className="font-medium text-sm">{slot.bloque}</div>
+                      {/* Mostrar horario debajo del bloque */}
+                      {dias.length > 0 && (() => {
+                        const horarioInfo = getBloqueInfo(slot.bloque, dias[0])
+                        return horarioInfo ? (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {horarioInfo}
+                          </div>
+                        ) : null
+                      })()}
                     </td>
                     {dias.map((dia) => {
                       const content = slot[dia];
