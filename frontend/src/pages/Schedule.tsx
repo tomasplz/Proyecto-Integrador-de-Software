@@ -96,6 +96,31 @@ const getCourseColor = (courseCode: string) => {
   );
 };
 
+// Funciones helper para la integración con la base de datos
+const mapDayToSpanish = (dayKey: string): string => {
+  const dayMap: Record<string, string> = {
+    'monday': 'LUNES',
+    'tuesday': 'MARTES', 
+    'wednesday': 'MIERCOLES',
+    'thursday': 'JUEVES',
+    'friday': 'VIERNES',
+    'saturday': 'SABADO'
+  };
+  return dayMap[dayKey] || dayKey.toUpperCase();
+};
+
+// Función para formatear el nombre de la sala con prefijo de sede
+const formatRoomNameWithSede = (roomName: string, sede: 'coquimbo' | 'antofagasta'): string => {
+  // Si ya tiene prefijo, retornarlo tal como está
+  if (roomName.startsWith('CQB ') || roomName.startsWith('ANF ')) {
+    return roomName;
+  }
+  
+  // Agregar prefijo según la sede
+  const prefix = sede === 'coquimbo' ? 'CQB ' : 'ANF ';
+  return prefix + roomName;
+};
+
 export default function Schedule() {
   const { selectedSede } = useSedeContext();  // Cambiar de schedule único a schedules por carrera y semestre con persistencia
   const [schedulesByCareerAndSemester, setSchedulesByCareerAndSemester] =
@@ -257,6 +282,136 @@ export default function Schedule() {
   const getScheduleKey = (career: string, semester: string) => {
     return `${career}-${semester}`;
   };
+
+  // Función para crear asignación de horario en la base de datos
+  const createScheduleAssignment = async (params: {
+    courseCode: string;
+    paralelo: string;
+    time: string;
+    day: string;
+    roomName: string;
+    career: string;
+    semester: string;
+  }) => {
+    try {
+      console.log('🔄 Creando asignación de horario en la base de datos:', params);
+      
+      // Formatear el nombre de la sala con el prefijo de sede
+      const formattedRoomName = formatRoomNameWithSede(params.roomName, selectedSede);
+      console.log('🏢 Nombre de sala formateado:', formattedRoomName);
+      
+      // Mapear día a nombre esperado por la API
+      const dayMap: Record<string, string> = {
+        'monday': 'LUNES',
+        'tuesday': 'MARTES', 
+        'wednesday': 'MIERCOLES',
+        'thursday': 'JUEVES',
+        'friday': 'VIERNES',
+        'saturday': 'SABADO'
+      };
+
+      // Mapear tiempo a bloque (asumiendo que el tiempo corresponde directamente al bloque)
+      // Por ejemplo: "08:10 - 09:40" corresponde al bloque "A"
+      const timeSlotMap = new Map((timeSlotsData as TimeSlotData[])
+        .filter((slot) => slot.horario !== null)
+        .map((slot) => [slot.horario!, slot]));
+      
+      const timeSlotData = timeSlotMap.get(params.time);
+      if (!timeSlotData) {
+        console.error('No se encontró información del bloque horario para:', params.time);
+        return;
+      }
+
+      const response = await fetch('http://localhost:3000/asignaciones-horario', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          asignaturaCode: params.courseCode,
+          paralelo: params.paralelo,
+          bloqueNombre: timeSlotData.nombre,
+          bloqueDia: dayMap[params.day],
+          salaNombre: formattedRoomName,
+          carreraNombre: params.career,
+          semestre: parseInt(params.semester)
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Asignación de horario creada:', result);
+        return result;
+      } else {
+        const error = await response.text();
+        console.error('❌ Error al crear asignación de horario:', error);
+        throw new Error(`Error ${response.status}: ${error}`);
+      }
+    } catch (error) {
+      console.error('❌ Error en createScheduleAssignment:', error);
+      throw error;
+    }
+  };
+
+  // Función para eliminar asignación de horario de la base de datos
+  const removeScheduleAssignment = async (params: {
+    courseCode: string;
+    time: string;
+    day: string;
+    roomName: string;
+  }) => {
+    try {
+      console.log('🗑️ Eliminando asignación de horario:', params);
+      
+      // Formatear el nombre de la sala con el prefijo de sede
+      const formattedRoomName = formatRoomNameWithSede(params.roomName, selectedSede);
+      console.log('🏢 Nombre de sala formateado para eliminación:', formattedRoomName);
+      
+      // Mapear día y obtener información del bloque
+      const dayMap: Record<string, string> = {
+        'monday': 'LUNES',
+        'tuesday': 'MARTES', 
+        'wednesday': 'MIERCOLES',
+        'thursday': 'JUEVES',
+        'friday': 'VIERNES',
+        'saturday': 'SABADO'
+      };
+
+      const timeSlotMap = new Map((timeSlotsData as TimeSlotData[])
+        .filter((slot) => slot.horario !== null)
+        .map((slot) => [slot.horario!, slot]));
+      
+      const timeSlotData = timeSlotMap.get(params.time);
+      if (!timeSlotData) {
+        console.error('No se encontró información del bloque horario para:', params.time);
+        return;
+      }
+
+      const paraleloId = 1; // Este ID debería venir del curso/paralelo
+
+      const response = await fetch('http://localhost:3000/asignaciones-horario/by-location?' + new URLSearchParams({
+        paraleloId: paraleloId.toString(),
+        salaNombre: formattedRoomName, // Usar el nombre formateado
+        bloqueHorarioDia: dayMap[params.day],
+        bloqueHorarioNombre: timeSlotData.nombre
+      }), {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Asignación de horario eliminada:', result);
+        return result;
+      } else {
+        const error = await response.text();
+        console.error('❌ Error al eliminar asignación de horario:', error);
+        throw new Error(`Error ${response.status}: ${error}`);
+      }
+    } catch (error) {
+      console.error('❌ Error en removeScheduleAssignment:', error);
+      throw error;
+    }
+  };
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -332,6 +487,111 @@ export default function Schedule() {
 
     setTimeout(loadData, 500);
   }, []);
+
+  // Función para cargar asignaciones existentes desde la base de datos
+  const loadExistingAssignments = async () => {
+    try {
+      console.log('📥 Cargando asignaciones existentes desde la base de datos...');
+      
+      const response = await fetch('http://localhost:3000/asignaciones-horario');
+      if (!response.ok) {
+        throw new Error(`Error al cargar asignaciones: ${response.status}`);
+      }
+      
+      const assignments = await response.json();
+      console.log('📋 Asignaciones cargadas desde la base de datos:', assignments.length);
+      
+      // Convertir asignaciones de BD a formato del frontend
+      const schedulesByKey: ScheduleByCareerAndSemester = {};
+      
+      for (const assignment of assignments) {
+        try {
+          // Obtener datos del paralelo con información expandida
+          const paralelo = assignment.paralelo;
+          const asignatura = paralelo.asignatura;
+          const carrera = asignatura.semestre.carrera;
+          const sala = assignment.sala;
+          const bloque = assignment.bloqueHorario;
+          
+          // Crear la clave del horario (carrera-semestre)
+          const scheduleKey = `${carrera.name}-${asignatura.semestre.numero}`;
+          
+          // Inicializar el horario si no existe
+          if (!schedulesByKey[scheduleKey]) {
+            schedulesByKey[scheduleKey] = defaultTimeSlots.map((slot) => ({ ...slot }));
+          }
+          
+          // Mapear día de la BD al formato del frontend
+          const dayMap: Record<string, keyof Omit<TimeSlot, "time">> = {
+            'LUNES': 'monday',
+            'MARTES': 'tuesday',
+            'MIERCOLES': 'wednesday',
+            'JUEVES': 'thursday',
+            'VIERNES': 'friday',
+            'SABADO': 'saturday'
+          };
+          
+          const dayKey = dayMap[bloque.dia];
+          const timeSlot = `${bloque.horaInicio.substring(11, 16)} - ${bloque.horaFin.substring(11, 16)}`;
+          
+          if (dayKey) {
+            // Crear el curso programado
+            const scheduledCourse: ScheduledCourse = {
+              key: `${asignatura.code}-${carrera.code}-${asignatura.semestre.numero}`,
+              code: asignatura.code,
+              name: asignatura.name,
+              period: assignment.periodoAcademico.codigoBanner || assignment.periodoAcademico.nombre,
+              career: carrera.name,
+              semester: asignatura.semestre.numero,
+              demand: asignatura.demand || 0,
+              isLocked: asignatura.isLocked || false,
+              isPreAssigned: asignatura.isPreAssigned || false,
+              lastUpdate: new Date().toISOString(),
+              sectionSize: paralelo.capacidadEstimada || 18,
+              sectionsNumber: 1,
+              suggestedRoom: asignatura.suggestedRoom || '',
+              paralelo: paralelo.nombre,
+              selectedRoom: sala.nombre.replace(/^(CQB|ANF) /, ''), // Quitar prefijo para mostrar en UI
+              selectedTeacher: paralelo.profesor?.rut || undefined
+            };
+            
+            // Buscar el slot correcto en el horario
+            const schedule = schedulesByKey[scheduleKey];
+            const slotIndex = schedule.findIndex(slot => slot.time === timeSlot);
+            
+            if (slotIndex !== -1) {
+              schedule[slotIndex] = {
+                ...schedule[slotIndex],
+                [dayKey]: scheduledCourse
+              };
+              
+              console.log(`✅ Asignación cargada: ${asignatura.code} ${paralelo.nombre} en ${sala.nombre} ${bloque.dia} ${timeSlot}`);
+            } else {
+              console.warn(`⚠️ No se encontró slot para ${timeSlot} en ${scheduleKey}`);
+            }
+          } else {
+            console.warn(`⚠️ Día no reconocido: ${bloque.dia}`);
+          }
+        } catch (error) {
+          console.error('❌ Error procesando asignación:', assignment.id, error);
+        }
+      }
+      
+      // Actualizar el estado con las asignaciones cargadas
+      setSchedulesByCareerAndSemester(schedulesByKey);
+      
+      console.log(`✅ Horarios cargados desde BD para ${Object.keys(schedulesByKey).length} carrera(s)/semestre(s)`);
+      
+    } catch (error) {
+      console.error('❌ Error al cargar asignaciones existentes:', error);
+    }
+  };
+
+  // Cargar asignaciones existentes al montar el componente
+  useEffect(() => {
+    loadExistingAssignments();
+  }, []);
+
   // Obtener carreras únicas
   const careers = [...new Set(courses.map((course: Course) => course.career))].sort();
   // Obtener semestres únicos según la carrera seleccionada
@@ -446,7 +706,7 @@ export default function Schedule() {
     const course = event.active.data.current?.course as Course;
     setActiveCourse(course);
   };
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveCourse(null);
 
@@ -466,7 +726,8 @@ export default function Schedule() {
     }
 
     if (dropData?.type === "schedule-cell") {
-      const { time, day } = dropData;      // Verificar si ya existe un curso en esa celda
+      const { time, day } = dropData;      
+      // Verificar si ya existe un curso en esa celda
       const currentSchedule = getCurrentSchedule();
       const existingCourse = currentSchedule.find(
         (slot) => slot.time === time
@@ -486,6 +747,7 @@ export default function Schedule() {
         selectedTeacher: undefined
       };
 
+      // Actualizar el estado local primero
       const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
       setSchedulesByCareerAndSemester((prevSchedules) => {
         const currentSchedule =
@@ -498,6 +760,32 @@ export default function Schedule() {
           ),
         };
       });
+
+      // TODO: Crear asignación de horario en la base de datos
+      // Esto se implementará cuando tengamos los IDs de paralelos desde la API
+      console.log('📝 Creando asignación de horario:', {
+        course: course.name,
+        code: course.code,
+        time: time,
+        day: day,
+        selectedRoom: course.suggestedRoom
+      });
+      
+      try {
+        // Por ahora solo logeamos, más adelante haremos el POST a la API
+        await createScheduleAssignment({
+          courseCode: course.code,
+          paralelo: course.paralelo || 'C1', // Usar el paralelo del curso o C1 por defecto
+          time: time,
+          day: day,
+          roomName: course.suggestedRoom || '',
+          career: selectedCareer,
+          semester: selectedSemester
+        });
+      } catch (error) {
+        console.error('Error al crear asignación de horario:', error);
+        // En caso de error, podríamos revertir el estado local aquí
+      }
     }
   };  // Función para eliminar un paralelo (excepto C1)
   const deleteParalelo = (courseKey: string, paralelo: string) => {
@@ -528,10 +816,47 @@ export default function Schedule() {
   };
 
   // Función para remover un curso específico del horario
-  const removeCourseFromSchedule = (courseKey: string) => {
+  const removeCourseFromSchedule = async (courseKey: string) => {
     if (!selectedSemester || !selectedCareer) return;
 
     const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
+    const currentSchedule = schedulesByCareerAndSemester[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
+    
+    // Encontrar el curso que se va a eliminar para hacer la petición DELETE
+    let courseToRemove: ScheduledCourse | null = null;
+    let timeSlot = '';
+    let dayKey = '';
+    
+    for (const slot of currentSchedule) {
+      for (const day of dayKeys) {
+        if (slot[day]?.key === courseKey) {
+          courseToRemove = slot[day] as ScheduledCourse;
+          timeSlot = slot.time;
+          dayKey = day;
+          break;
+        }
+      }
+      if (courseToRemove) break;
+    }
+
+    // Si encontramos el curso, eliminar de la base de datos primero
+    if (courseToRemove && courseToRemove.selectedRoom) {
+      try {
+        await removeScheduleAssignment({
+          courseCode: courseToRemove.code,
+          time: timeSlot,
+          day: dayKey,
+          roomName: courseToRemove.selectedRoom
+        });
+        console.log('✅ Asignación eliminada de la base de datos');
+      } catch (error) {
+        console.error('❌ Error al eliminar de la base de datos:', error);
+        // Decidir si continuar con la eliminación local o no
+        // Por ahora continuamos para mantener la funcionalidad
+      }
+    }
+
+    // Actualizar el estado local
     setSchedulesByCareerAndSemester((prevSchedules) => {
       const currentSchedule =
         prevSchedules[scheduleKey] ||
@@ -561,10 +886,29 @@ export default function Schedule() {
   }, []);
 
   // Función para limpiar el horario del semestre actual
-  const clearAllSchedule = () => {
+  const clearAllSchedule = async () => {
     if (!selectedSemester || !selectedCareer) return;
     
     if (confirm(`¿Está seguro de que desea limpiar todo el horario del semestre ${selectedSemester} de ${selectedCareer}?`)) {
+      try {
+        console.log('🗑️ Eliminando todas las asignaciones de la base de datos...');
+        
+        // Eliminar todas las asignaciones del periodo académico actual en la base de datos
+        const response = await fetch('http://localhost:3000/asignaciones-horario/current-period/all', {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Asignaciones eliminadas de la base de datos:', result);
+        } else {
+          console.error('❌ Error al eliminar asignaciones de la base de datos:', response.status);
+        }
+      } catch (error) {
+        console.error('❌ Error al conectar con la API para eliminar asignaciones:', error);
+      }
+      
+      // Eliminar del estado local
       const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
       setSchedulesByCareerAndSemester((prevSchedules) => {
         const newSchedules = { ...prevSchedules };
@@ -792,10 +1136,60 @@ export default function Schedule() {
   };
 
   // Función para actualizar la sala seleccionada de un curso en el horario
-  const updateSelectedRoom = (time: string, day: keyof Omit<TimeSlot, "time">, roomName: string) => {
+  const updateSelectedRoom = async (time: string, day: keyof Omit<TimeSlot, "time">, roomName: string) => {
     if (!selectedSemester || !selectedCareer) return;
 
     const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
+    const currentSchedule = schedulesByCareerAndSemester[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
+    
+    // Encontrar el curso actual para actualizar en la base de datos
+    const slot = currentSchedule.find(s => s.time === time);
+    const currentCourse = slot?.[day] as ScheduledCourse;
+    
+    if (currentCourse && currentCourse.selectedRoom !== roomName) {
+      try {
+        // Formatear los nombres de sala con el prefijo de sede
+        const oldRoomFormatted = formatRoomNameWithSede(currentCourse.selectedRoom || '', selectedSede);
+        const newRoomFormatted = formatRoomNameWithSede(roomName, selectedSede);
+        
+        // Actualizar la asignación en la base de datos
+        console.log('🔄 Actualizando sala en la base de datos:', {
+          courseCode: currentCourse.code,
+          oldRoom: oldRoomFormatted,
+          newRoom: newRoomFormatted,
+          time,
+          day
+        });
+
+        const dayInSpanish = mapDayToSpanish(day);
+        const bloqueNombre = timeSlotMap.get(time)?.nombre || 'A';
+        
+        const response = await fetch('http://localhost:3000/asignaciones-horario/update-room', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            asignaturaCode: currentCourse.code,
+            bloqueNombre: bloqueNombre,
+            bloqueDia: dayInSpanish,
+            oldSalaNombre: oldRoomFormatted, // Usar nombre formateado
+            newSalaNombre: newRoomFormatted  // Usar nombre formateado
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error del servidor: ${response.status}`);
+        }
+
+        console.log('✅ Sala actualizada en la base de datos');
+      } catch (error) {
+        console.error('❌ Error al actualizar sala en la base de datos:', error);
+        // Continuamos con la actualización local aunque falle la BD
+      }
+    }
+
+    // Actualizar el estado local
     setSchedulesByCareerAndSemester((prevSchedules) => {
       const currentSchedule = prevSchedules[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
       
@@ -814,10 +1208,60 @@ export default function Schedule() {
   };
 
   // Función para actualizar el profesor seleccionado de un curso en el horario
-  const updateSelectedTeacher = (time: string, day: keyof Omit<TimeSlot, "time">, teacherRut: string) => {
+  const updateSelectedTeacher = async (time: string, day: keyof Omit<TimeSlot, "time">, teacherRut: string) => {
     if (!selectedSemester || !selectedCareer) return;
 
     const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
+    const currentSchedule = schedulesByCareerAndSemester[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
+    
+    // Encontrar el curso actual para actualizar en la base de datos
+    const slot = currentSchedule.find(s => s.time === time);
+    const currentCourse = slot?.[day] as ScheduledCourse;
+    
+    if (currentCourse && currentCourse.selectedTeacher !== teacherRut) {
+      try {
+        // Formatear el nombre de la sala con el prefijo de sede
+        const formattedRoomName = formatRoomNameWithSede(currentCourse.selectedRoom || '', selectedSede);
+        
+        // Actualizar el profesor en la base de datos
+        console.log('🔄 Actualizando profesor en la base de datos:', {
+          courseCode: currentCourse.code,
+          oldTeacher: currentCourse.selectedTeacher,
+          newTeacher: teacherRut,
+          time,
+          day,
+          room: formattedRoomName
+        });
+
+        const dayInSpanish = mapDayToSpanish(day);
+        const bloqueNombre = timeSlotMap.get(time)?.nombre || 'A';
+        
+        const response = await fetch('http://localhost:3000/asignaciones-horario/update-teacher', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            asignaturaCode: currentCourse.code,
+            bloqueNombre: bloqueNombre,
+            bloqueDia: dayInSpanish,
+            salaNombre: formattedRoomName, // Usar nombre formateado
+            teacherRut: teacherRut
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error del servidor: ${response.status}`);
+        }
+
+        console.log('✅ Profesor actualizado en la base de datos');
+      } catch (error) {
+        console.error('❌ Error al actualizar profesor en la base de datos:', error);
+        // Continuamos con la actualización local aunque falle la BD
+      }
+    }
+
+    // Actualizar el estado local
     setSchedulesByCareerAndSemester((prevSchedules) => {
       const currentSchedule = prevSchedules[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
       
@@ -1466,6 +1910,7 @@ export default function Schedule() {
                                                         return teacher ? teacher.name.substring(0, 8) : content.selectedTeacher.substring(0, 8);
                                                       })()
                                                     ) : "Prof"}
+                                                 
                                                   </span>
                                                 </div>
                                               </div>

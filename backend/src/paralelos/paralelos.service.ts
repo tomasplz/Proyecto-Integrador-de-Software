@@ -6,6 +6,20 @@ export class ParalelosService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll(semestreId?: string) {
+    const include = {
+      asignatura: {
+        include: {
+          semestre: {
+            include: {
+              carrera: true
+            }
+          }
+        }
+      },
+      tipoParalelo: true,
+      profesor: true
+    };
+
     if (semestreId) {
       return this.prisma.paralelo.findMany({
         where: {
@@ -13,12 +27,28 @@ export class ParalelosService {
             semestreId: Number(semestreId),
           },
         },
+        include
       });
     }
-    return this.prisma.paralelo.findMany();
+    return this.prisma.paralelo.findMany({ include });
   }
 
   findOne(id: string) {
-    return this.prisma.paralelo.findUnique({ where: { id: Number(id) } });
+    return this.prisma.paralelo.findUnique({ 
+      where: { id: Number(id) },
+      include: {
+        asignatura: {
+          include: {
+            semestre: {
+              include: {
+                carrera: true
+              }
+            }
+          }
+        },
+        tipoParalelo: true,
+        profesor: true
+      }
+    });
   }
 }

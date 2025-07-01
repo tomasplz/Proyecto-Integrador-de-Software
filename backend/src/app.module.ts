@@ -11,6 +11,7 @@ import { BloquesHorarioModule } from './bloques-horario/bloques-horario.module';
 import { PeriodosAcademicosModule } from './periodos-academicos/periodos-academicos.module';
 import { TiposParaleloModule } from './tipos-paralelo/tipos-paralelo.module';
 import { HorarioModule } from './horario/horario.module';
+import { AsignacionesHorarioModule } from './asignaciones-horario/asignaciones-horario.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { HorarioModule } from './horario/horario.module';
     PeriodosAcademicosModule,
     TiposParaleloModule,
     HorarioModule,
+    AsignacionesHorarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
