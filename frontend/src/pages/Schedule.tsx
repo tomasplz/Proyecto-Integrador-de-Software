@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Course, ScheduledCourse, TimeSlotData, Teacher, Classroom } from "@/lib/types";
 import coursesData from "@/lib/courses.json";
-import teachersData from "@/lib/teachers.json";
 import classroomsData from "@/lib/classrooms.json";
 import timeSlotsData from "@/lib/timeSlot.json";
 import { DndContext, DragOverlay, closestCorners } from "@dnd-kit/core";
@@ -104,7 +103,7 @@ export default function Schedule() {
       // Cargar datos del localStorage al inicializar
       const saved = localStorage.getItem("schedulesByCareerAndSemester");
       return saved ? JSON.parse(saved) : {};
-    });const [courses, setCourses] = useState<Course[]>([]);
+    });  const [courses, setCourses] = useState<Course[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,6 +124,9 @@ export default function Schedule() {
   // Estados para controlar los popovers abiertos
   const [openRoomPopover, setOpenRoomPopover] = useState<string | null>(null);
   const [openTeacherPopover, setOpenTeacherPopover] = useState<string | null>(null);
+  
+  // Estado para controlar si mostrar todos los profesores o solo los disponibles
+  const [showAllTeachers, setShowAllTeachers] = useState<{[key: string]: boolean}>({});
 
   // Cache de cursos para mostrar información completa
   const cursosCache: Record<string, Course> = {};
@@ -237,16 +239,66 @@ export default function Schedule() {
     return `${career}-${semester}`;
   };
   useEffect(() => {
-    setTimeout(() => {
-      console.log("Cargando cursos:", coursesData.length, "cursos encontrados");
-      setCourses(coursesData as Course[]);
-      setTeachers(teachersData as Teacher[]);
-      setClassrooms(classroomsData as Classroom[]);
+    const loadData = async () => {
+      try {
+        console.log("Cargando cursos:", coursesData.length, "cursos encontrados");
+        setCourses(coursesData as Course[]);
+        
+        // Cargar profesores desde la API
+        console.log("🔄 Iniciando carga de profesores desde API...");
+        console.log("📡 Fetch URL: http://localhost:3000/profesores");
+        const teachersResponse = await fetch('http://localhost:3000/profesores');
+        console.log("📥 Respuesta de profesores - Status:", teachersResponse.status, "OK:", teachersResponse.ok);
+        
+        if (teachersResponse.ok) {
+          const teachersFromApi = await teachersResponse.json();
+          console.log("✅ Profesores cargados desde API:", teachersFromApi);
+          console.log("📊 Total profesores:", teachersFromApi.length);
+          
+          // Log detalles de algunos profesores para depuración
+          teachersFromApi.slice(0, 3).forEach((teacher: any, index: number) => {
+            console.log(`👨‍🏫 Profesor ${index + 1}:`, {
+              id: teacher.id,
+              rut: teacher.rut,
+              name: teacher.name,
+              isAvailable: teacher.isAvailable,
+              courseOffer: teacher.courseOffer
+            });
+          });
+          
+          console.log("🔍 Profesores disponibles:", teachersFromApi.filter((t: any) => t.isAvailable).length);
+          setTeachers(teachersFromApi);
+        } else {
+          console.error("❌ Error al cargar profesores desde API. Status:", teachersResponse.status);
+          console.log("🔄 Fallback: usando array vacío");
+          setTeachers([]);
+        }
+
+        // Cargar salas desde la API
+        console.log("Cargando salas desde la API...");
+        const classroomsResponse = await fetch('http://localhost:3000/salas');
+        if (classroomsResponse.ok) {
+          const classroomsFromApi = await classroomsResponse.json();
+          console.log("Salas cargadas desde API:", classroomsFromApi.length, "salas encontradas");
+          setClassrooms(classroomsFromApi);
+        } else {
+          console.error("Error al cargar salas desde API, usando datos estáticos");
+          setClassrooms(classroomsData as Classroom[]);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+        // Fallback a datos estáticos si hay error
+        setTeachers([]);
+        setClassrooms(classroomsData as Classroom[]);
+      }
+      
       setLoading(false);
-    }, 500);
+    };
+
+    setTimeout(loadData, 500);
   }, []);
   // Obtener carreras únicas
-  const careers = [...new Set(courses.map((course) => course.career))].sort();
+  const careers = [...new Set(courses.map((course: Course) => course.career))].sort();
   // Obtener semestres únicos según la carrera seleccionada
   const semesters =
     selectedCareer === ""
@@ -254,10 +306,10 @@ export default function Schedule() {
       : [
           ...new Set(
             courses
-              .filter((course) => course.career === selectedCareer)
-              .map((course) => course.semester)
+              .filter((course: Course) => course.career === selectedCareer)
+              .map((course: Course) => course.semester)
           ),
-        ].sort((a, b) => a - b);
+        ].sort((a: any, b: any) => a - b);
   // Resetear semestre cuando cambie la carrera
   const handleCareerChange = (career: string) => {
     setSelectedCareer(career);
@@ -266,9 +318,9 @@ export default function Schedule() {
 
   // Manejar cambio en la visualización de semestres anteriores
   const handleTogglePreviousSemester = (semestre: string) => {
-    setShowPreviousSemesters((prev) => {
+    setShowPreviousSemesters((prev: string[]) => {
       if (prev.includes(semestre)) {
-        return prev.filter((s) => s !== semestre);
+        return prev.filter((s: string) => s !== semestre);
       } else {
         return [...prev, semestre];
       }
@@ -326,7 +378,7 @@ export default function Schedule() {
 
     return backgroundSchedules;
   };// Filtrar cursos disponibles
-  const filteredCourses = courses.filter((course) => {
+  const filteredCourses = courses.filter((course: Course) => {
     // No mostrar cursos hasta que se seleccionen carrera y semestre
     if (selectedCareer === "" || selectedSemester === "") {
       return false;
@@ -340,7 +392,7 @@ export default function Schedule() {
 
     // Verificar si el curso ya está asignado en el horario del semestre actual
     const currentSchedule = getCurrentSchedule();
-    const isAlreadyScheduled = currentSchedule.some((slot) =>
+    const isAlreadyScheduled = currentSchedule.some((slot: any) =>
       dayKeys.some((day) => slot[day]?.key === course.key)
     );
 
@@ -446,7 +498,7 @@ export default function Schedule() {
         defaultTimeSlots.map((slot) => ({ ...slot }));
       return {
         ...prevSchedules,
-        [scheduleKey]: currentSchedule.map((slot) => {
+        [scheduleKey]: currentSchedule.map((slot: any) => {
           if (slot.time === time) {
             const currentCourse = slot[day] as ScheduledCourse;
             if (currentCourse) {
@@ -526,20 +578,29 @@ export default function Schedule() {
       .sort((a, b) => a.nombre.localeCompare(b.nombre));
   };
 
-// Función para obtener profesores disponibles para un curso específico con filtrado por carrera
-const getAvailableTeachers = (courseCode: string, career: string, time?: string) => {
-  // Filtrar profesores que:
-  // 1. Están disponibles (isAvailable: true)
-  // 2. Pueden enseñar este curso (courseOffer incluye el código)
+// Función para obtener profesores disponibles para un curso específico
+const getAvailableTeachers = (courseCode: string, career: string, time?: string, showAll: boolean = false) => {
+  console.log(`🔍 Buscando profesores para curso: ${courseCode}, carrera: ${career}, tiempo: ${time || 'N/A'}, mostrar todos: ${showAll}`);
+  console.log(`📊 Total profesores en estado: ${teachers.length}`);
   
-  // Primero filtramos los profesores por código de curso
-  const courseProfessors = teachers.filter(teacher => 
-    teacher.isAvailable && 
-    teacher.courseOffer.includes(courseCode)
-  );
+  // Filtrar profesores según el parámetro showAll
+  const filteredTeachers = teachers.filter(teacher => {
+    if (showAll) {
+      // Si showAll es true, mostrar todos los profesores
+      console.log(`👨‍🏫 Profesor ${teacher.name} (${teacher.rut}) - Incluido (mostrar todos)`);
+      return true;
+    } else {
+      // Si showAll es false, mostrar solo los disponibles
+      const isAvailable = teacher.isAvailable;
+      console.log(`👨‍🏫 Profesor ${teacher.name} (${teacher.rut}) - Disponible: ${isAvailable}`);
+      return isAvailable;
+    }
+  });
+  
+  console.log(`✅ Profesores filtrados: ${filteredTeachers.length} (mostrar todos: ${showAll})`);
 
   // Si se proporciona tiempo, verificar conflictos globales
-  let availableProfessors = courseProfessors;
+  let finalAvailableProfessors = filteredTeachers;
   if (time) {
     // Obtener todos los profesores ocupados en este bloque de tiempo en TODOS los horarios guardados
     const occupiedTeachers = new Set<string>();
@@ -556,27 +617,19 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string)
       }
     });
 
+    console.log(`⏰ Profesores ocupados en tiempo ${time}:`, Array.from(occupiedTeachers));
+
     // Filtrar profesores que no estén ocupados en este horario
-    availableProfessors = courseProfessors.filter(teacher => 
+    finalAvailableProfessors = filteredTeachers.filter(teacher => 
       !occupiedTeachers.has(teacher.rut)
     );
+    
+    console.log(`🎯 Profesores finales disponibles en ${time}: ${finalAvailableProfessors.length}`);
   }
   
-  // Ahora verificamos si alguno de estos profesores debería estar limitado a ciertas carreras
-  // En este caso, filtramos en base a las reglas conocidas (Eric Ross solo ciertas combinaciones)
-  return availableProfessors.filter(teacher => {
-    // Caso especial para Eric Ross (128401768)
-    if (teacher.rut === "128401768") {
-      if (courseCode === "ECIN-00100" || courseCode === "ECIN-00115") {
-        return career === "ITI"; // Eric solo da estos cursos en ITI
-      } else if (courseCode === "ECIN-08606") {
-        return career === "ICCI"; // Eric solo da este curso en ICCI
-      }
-    }
-    // Todos los demás profesores pueden dar clases en cualquier carrera
-    return true;
-  });
+  return finalAvailableProfessors;
 };
+  
   const clearAllSchedule = () => {
     if (!selectedSemester || !selectedCareer) return;
 
@@ -689,6 +742,63 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string)
     
     console.log(`Horarios exportados a ${fileName}`);
   };
+  // Función para limpiar todo el cache
+  const clearAllCache = () => {
+    const isConfirmed = window.confirm(
+      "¿Estás seguro de que quieres limpiar todo el cache?\n\n" +
+      "Esto eliminará:\n" +
+      "• Todos los horarios guardados\n" +
+      "• Todas las asignaciones de profesores\n" +
+      "• Todas las asignaciones de salas\n\n" +
+      "Esta acción no se puede deshacer."
+    );
+    
+    if (isConfirmed) {
+      // Limpiar localStorage
+      localStorage.removeItem("schedulesByCareerAndSemester");
+      
+      // Reset del estado
+      setSchedulesByCareerAndSemester({});
+      setSelectedCareer("");
+      setSelectedSemester("");
+      setSearchTerm("");
+      setShowPreviousSemesters(["semestre-1", "semestre-2"]);
+      
+      console.log("✅ Cache completamente limpiado");
+      
+      // Mostrar confirmación visual
+      const toast = document.createElement('div');
+      toast.textContent = '🗑️ Cache limpiado exitosamente';
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+      `;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+      }, 10);
+      
+      setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+  };
+
   // Función para importar horarios
   const importSchedules = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -874,6 +984,12 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string)
                       disabled={Object.keys(schedulesByCareerAndSemester).length === 0}
                     >
                       📊 Exportar como Excel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={clearAllCache}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      🗑️ Limpiar Todo
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -1188,7 +1304,14 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string)
                                             </div>
                                             <Popover 
                                               open={openTeacherPopover === `${slot.time}-${dayKey}`} 
-                                              onOpenChange={(open) => setOpenTeacherPopover(open ? `${slot.time}-${dayKey}` : null)}
+                                              onOpenChange={(open) => {
+                                                if (open) {
+                                                  console.log(`🖱️ Abriendo dropdown de profesores para curso: ${content.code} en ${slot.time}`);
+                                                  console.log(`📊 Estado actual - Teachers length: ${teachers.length}`);
+                                                  console.log(`🔍 Profesores disponibles general:`, teachers.filter(t => t.isAvailable).map(t => `${t.name} (${t.rut})`));
+                                                }
+                                                setOpenTeacherPopover(open ? `${slot.time}-${dayKey}` : null);
+                                              }}
                                             >
                                               <PopoverTrigger asChild>
                                                 <Button
@@ -1197,10 +1320,12 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string)
                                                   aria-expanded={openTeacherPopover === `${slot.time}-${dayKey}`}
                                                   className="h-7 text-xs px-2 bg-white dark:bg-gray-900 justify-between w-full"
                                                 >
-                                                  {content.selectedTeacher ? 
-                                                    getAvailableTeachers(content.code, content.career, slot.time).find(teacher => teacher.rut === content.selectedTeacher)?.name || content.selectedTeacher
-                                                    : "Seleccionar profesor"
-                                                  }
+                                                  {content.selectedTeacher ? (
+                                                    (() => {
+                                                      const teacher = getAvailableTeachers(content.code, content.career, slot.time, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
+                                                      return teacher ? teacher.name : content.selectedTeacher;
+                                                    })()
+                                                  ) : "Seleccionar profesor"}
                                                   <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
                                                 </Button>
                                               </PopoverTrigger>
@@ -1208,29 +1333,79 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string)
                                                 <Command>
                                                   <CommandInput placeholder="Buscar profesor..." className="h-7" />
                                                   <CommandEmpty>No se encontró ningún profesor.</CommandEmpty>
-                                                  <CommandGroup className="max-h-48 overflow-auto">
-                                                    {getAvailableTeachers(content.code, content.career, slot.time).map((teacher) => (
-                                                      <CommandItem
-                                                        key={teacher.rut}
-                                                        onSelect={() => {
-                                                          updateSelectedTeacher(slot.time, dayKey, teacher.rut);
-                                                          setOpenTeacherPopover(null);
+                                                  <div className="px-3 py-2 border-b border-border bg-muted/50">
+                                                    <div className="flex items-center space-x-2">
+                                                      <Switch
+                                                        id={`show-all-teachers-${slot.time}-${dayKey}`}
+                                                        checked={showAllTeachers[`${slot.time}-${dayKey}`] || false}
+                                                        onCheckedChange={(checked) => {
+                                                          const key = `${slot.time}-${dayKey}`;
+                                                          setShowAllTeachers(prev => ({
+                                                            ...prev,
+                                                            [key]: checked
+                                                          }));
+                                                          console.log(`🔄 Toggle profesores para ${key}: ${checked ? 'Mostrar todos' : 'Solo disponibles'}`);
                                                         }}
-                                                        className="cursor-pointer"
+                                                      />
+                                                      <Label 
+                                                        htmlFor={`show-all-teachers-${slot.time}-${dayKey}`}
+                                                        className="text-xs font-medium cursor-pointer"
                                                       >
-                                                        <Check
-                                                          className={`mr-2 h-3 w-3 ${
-                                                            content.selectedTeacher === teacher.rut ? "opacity-100" : "opacity-0"
-                                                          }`}
-                                                        />
-                                                        <div className="text-xs">
-                                                          <div className="font-medium">{teacher.name}</div>
-                                                          <div className="text-muted-foreground text-[10px]">
-                                                            {teacher.rut}
+                                                        Mostrar todos los profesores
+                                                      </Label>
+                                                    </div>
+                                                    <div className="text-[10px] text-muted-foreground mt-1">
+                                                      {showAllTeachers[`${slot.time}-${dayKey}`] ? 
+                                                        'Incluye profesores no disponibles' : 
+                                                        'Solo profesores disponibles'
+                                                      }
+                                                    </div>
+                                                  </div>
+                                                  <CommandGroup className="max-h-48 overflow-auto">
+                                                    {(() => {
+                                                      const showAll = showAllTeachers[`${slot.time}-${dayKey}`] || false;
+                                                      const availableTeachers = getAvailableTeachers(content.code, content.career, slot.time, showAll);
+                                                      
+                                                      console.log(`🔍 Dropdown Teachers - Curso: ${content.code}, Mostrar todos: ${showAll}`);
+                                                      console.log(`📊 Total profesores:`, teachers.length);
+                                                      console.log(`📋 Profesores mostrados:`, availableTeachers.length);
+                                                      console.log(`� Lista de profesores para dropdown:`, availableTeachers.map(t => `${t.name} (${t.rut}) ${t.isAvailable ? '✅' : '❌'}`));
+                                                      
+                                                      return availableTeachers.map((teacher) => (
+                                                        <CommandItem
+                                                          key={teacher.rut}
+                                                          onSelect={() => {
+                                                            console.log(`✅ Profesor seleccionado: ${teacher.name} (${teacher.rut})`);
+                                                            updateSelectedTeacher(slot.time, dayKey, teacher.rut);
+                                                            setOpenTeacherPopover(null);
+                                                          }}
+                                                          className="cursor-pointer"
+                                                        >
+                                                          <Check
+                                                            className={`mr-2 h-3 w-3 ${
+                                                              content.selectedTeacher === teacher.rut ? "opacity-100" : "opacity-0"
+                                                            }`}
+                                                          />
+                                                          <div className="text-xs">
+                                                            <div className="font-medium flex items-center gap-2">
+                                                              {teacher.name}
+                                                              {showAll && (
+                                                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                                                                  teacher.isAvailable 
+                                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                                                }`}>
+                                                                  {teacher.isAvailable ? '✓ Disponible' : '✗ No disponible'}
+                                                                </span>
+                                                              )}
+                                                            </div>
+                                                            <div className="text-muted-foreground text-[10px]">
+                                                              {teacher.rut}
+                                                            </div>
                                                           </div>
-                                                        </div>
-                                                      </CommandItem>
-                                                    ))}
+                                                        </CommandItem>
+                                                      ));
+                                                    })()}
                                                   </CommandGroup>
                                                 </Command>
                                               </PopoverContent>
