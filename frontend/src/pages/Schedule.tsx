@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import type { Course, ScheduledCourse, TimeSlotData, Teacher, Classroom } from "@/lib/types";
 import coursesData from "@/lib/courses.json";
 import classroomsData from "@/lib/classrooms.json";
@@ -29,7 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, Users, Eye, EyeOff, Download, MapPin, GraduationCap, Check, ChevronsUpDown } from "lucide-react";
+import { Search, X, Users, Eye, EyeOff, Download, MapPin, GraduationCap, Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -103,7 +103,8 @@ export default function Schedule() {
       // Cargar datos del localStorage al inicializar
       const saved = localStorage.getItem("schedulesByCareerAndSemester");
       return saved ? JSON.parse(saved) : {};
-    });  const [courses, setCourses] = useState<Course[]>([]);
+    });
+  const [courses, setCourses] = useState<Course[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,7 +116,8 @@ export default function Schedule() {
   // Filtros
   const [selectedCareer, setSelectedCareer] = useState<string>("");
   const [selectedSemester, setSelectedSemester] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState("");  // Estado para controlar la visualización de semestres anteriores (onion layers)
+  const [searchTerm, setSearchTerm] = useState("");
+  // Estado para controlar la visualización de semestres anteriores (onion layers)
   const [showPreviousSemesters, setShowPreviousSemesters] = useState<string[]>([
     "semestre-1",
     "semestre-2",
@@ -128,11 +130,17 @@ export default function Schedule() {
   // Estado para controlar si mostrar todos los profesores o solo los disponibles
   const [showAllTeachers, setShowAllTeachers] = useState<{[key: string]: boolean}>({});
 
+  // Estado para controlar la creación de nuevos paralelos
+  const [showCreateParaleloModal, setShowCreateParaleloModal] = useState(false);
+  const [selectedCourseForParalelo, setSelectedCourseForParalelo] = useState<Course | null>(null);
+
   // Cache de cursos para mostrar información completa
   const cursosCache: Record<string, Course> = {};
   courses.forEach((course) => {
     cursosCache[course.key] = course;
-  });  // Efecto para guardar en localStorage cuando cambien los horarios
+  });
+  
+  // Efecto para guardar en localStorage cuando cambien los horarios
   useEffect(() => {
     localStorage.setItem(
       "schedulesByCareerAndSemester",
@@ -242,7 +250,12 @@ export default function Schedule() {
     const loadData = async () => {
       try {
         console.log("Cargando cursos:", coursesData.length, "cursos encontrados");
-        setCourses(coursesData as Course[]);
+        // Asignar paralelo "C1" por defecto a todos los cursos existentes
+        const coursesWithParalelo = (coursesData as Course[]).map(course => ({
+          ...course,
+          paralelo: course.paralelo || "C1" // Asignar C1 si no tiene paralelo
+        }));
+        setCourses(coursesWithParalelo);
         
         // Cargar profesores desde la API
         console.log("🔄 Iniciando carga de profesores desde API...");
@@ -464,31 +477,36 @@ export default function Schedule() {
         };
       });
     }
-  };  const removeCourseFromSchedule = (
-    time: string,
-    day: keyof Omit<TimeSlot, "time">
-  ) => {
-    if (!selectedSemester || !selectedCareer) return;
-
-    const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
-    setSchedulesByCareerAndSemester((prevSchedules) => {
-      const currentSchedule =
-        prevSchedules[scheduleKey] ||
-        defaultTimeSlots.map((slot) => ({ ...slot }));
-      return {
-        ...prevSchedules,
-        [scheduleKey]: currentSchedule.map((slot) =>
-          slot.time === time ? { ...slot, [day]: null } : slot
-        ),
-      };
-    });
+  };  // Función para eliminar un paralelo (excepto C1)
+  const deleteParalelo = (courseKey: string, paralelo: string) => {
+    if (paralelo === "C1") {
+      console.warn("No se puede eliminar el paralelo C1");
+      return;
+    }
+    
+    // Verificar si el curso está asignado en el horario
+    const currentSchedule = getCurrentSchedule();
+    const isScheduled = currentSchedule.some((slot: any) =>
+      dayKeys.some((day) => slot[day]?.key === courseKey)
+    );
+    
+    if (isScheduled) {
+      if (!confirm(`El paralelo ${paralelo} está asignado en el horario. ¿Desea eliminarlo de todas formas?`)) {
+        return;
+      }
+      
+      // Remover del horario primero
+      removeCourseFromSchedule(courseKey);
+    }
+    
+    // Remover de la lista de cursos
+    setCourses(prevCourses => prevCourses.filter(course => course.key !== courseKey));
+    
+    console.log(`Paralelo ${paralelo} eliminado`);
   };
-  // Función para actualizar la sala seleccionada de un curso
-  const updateSelectedRoom = (
-    time: string,
-    day: keyof Omit<TimeSlot, "time">,
-    roomName: string
-  ) => {
+
+  // Función para remover un curso específico del horario
+  const removeCourseFromSchedule = (courseKey: string) => {
     if (!selectedSemester || !selectedCareer) return;
 
     const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
@@ -496,334 +514,335 @@ export default function Schedule() {
       const currentSchedule =
         prevSchedules[scheduleKey] ||
         defaultTimeSlots.map((slot) => ({ ...slot }));
-      return {
-        ...prevSchedules,
-        [scheduleKey]: currentSchedule.map((slot: any) => {
-          if (slot.time === time) {
-            const currentCourse = slot[day] as ScheduledCourse;
-            if (currentCourse) {
-              return {
-                ...slot,
-                [day]: {
-                  ...currentCourse,
-                  selectedRoom: roomName
-                }
-              };
-            }
-          }
-          return slot;
-        }),
-      };
-    });
-  };
-  // Función para actualizar el profesor seleccionado de un curso
-  const updateSelectedTeacher = (
-    time: string,
-    day: keyof Omit<TimeSlot, "time">,
-    teacherRut: string
-  ) => {
-    if (!selectedSemester || !selectedCareer) return;
-
-    const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
-    setSchedulesByCareerAndSemester((prevSchedules) => {
-      const currentSchedule =
-        prevSchedules[scheduleKey] ||
-        defaultTimeSlots.map((slot) => ({ ...slot }));
+      
       return {
         ...prevSchedules,
         [scheduleKey]: currentSchedule.map((slot) => {
-          if (slot.time === time) {
-            const currentCourse = slot[day] as ScheduledCourse;
-            if (currentCourse) {
-              return {
-                ...slot,
-                [day]: {
-                  ...currentCourse,
-                  selectedTeacher: teacherRut
-                }
-              };
+          const updatedSlot = { ...slot };
+          dayKeys.forEach((day) => {
+            if (updatedSlot[day]?.key === courseKey) {
+              updatedSlot[day] = null;
             }
-          }
-          return slot;
+          });
+          return updatedSlot;
         }),
       };
     });
-  };  // Función para obtener salas disponibles para un bloque específico
-  const getAvailableRooms = (time: string) => {
-    if (!selectedSemester || !selectedCareer) return [];
-
-    // Obtener todas las salas ocupadas en este bloque de tiempo en TODOS los horarios guardados
-    const occupiedRooms = new Set<string>();
-    
-    // Verificar en todos los schedules guardados (todos los semestres y carreras)
-    Object.values(schedulesByCareerAndSemester).forEach(schedule => {
-      const timeSlot = schedule.find(slot => slot.time === time);
-      if (timeSlot) {
-        dayKeys.forEach(dayKey => {
-          const course = timeSlot[dayKey] as ScheduledCourse;
-          if (course?.selectedRoom) {
-            occupiedRooms.add(course.selectedRoom);
-          }
-        });
-      }
-    });    // Mapear sede del contexto a valor en JSON de classrooms
-    const sedeFilter = selectedSede === 'coquimbo' ? 'COQUIMBO' : 'ANTOFAGASTA';
-
-    // Filtrar salas disponibles por sede y disponibilidad global, luego ordenar alfabéticamente
-    return classrooms
-      .filter(classroom => 
-        !occupiedRooms.has(classroom.nombre) && 
-        classroom.sede === sedeFilter
-      )
-      .sort((a, b) => a.nombre.localeCompare(b.nombre));
   };
 
-// Función para obtener profesores disponibles para un curso específico
-const getAvailableTeachers = (courseCode: string, career: string, time?: string, showAll: boolean = false) => {
-  console.log(`🔍 Buscando profesores para curso: ${courseCode}, carrera: ${career}, tiempo: ${time || 'N/A'}, mostrar todos: ${showAll}`);
-  console.log(`📊 Total profesores en estado: ${teachers.length}`);
-  
-  // Filtrar profesores según el parámetro showAll
-  const filteredTeachers = teachers.filter(teacher => {
-    if (showAll) {
-      // Si showAll es true, mostrar todos los profesores
-      console.log(`👨‍🏫 Profesor ${teacher.name} (${teacher.rut}) - Incluido (mostrar todos)`);
-      return true;
-    } else {
-      // Si showAll es false, mostrar solo los disponibles
-      const isAvailable = teacher.isAvailable;
-      console.log(`👨‍🏫 Profesor ${teacher.name} (${teacher.rut}) - Disponible: ${isAvailable}`);
-      return isAvailable;
+  // Efecto para cargar el estado inicial desde localStorage
+  useEffect(() => {
+    const savedSchedules = localStorage.getItem("schedulesByCareerAndSemester");
+    if (savedSchedules) {
+      setSchedulesByCareerAndSemester(JSON.parse(savedSchedules));
     }
-  });
-  
-  console.log(`✅ Profesores filtrados: ${filteredTeachers.length} (mostrar todos: ${showAll})`);
+  }, []);
 
-  // Si se proporciona tiempo, verificar conflictos globales
-  let finalAvailableProfessors = filteredTeachers;
-  if (time) {
-    // Obtener todos los profesores ocupados en este bloque de tiempo en TODOS los horarios guardados
-    const occupiedTeachers = new Set<string>();
-    
-    Object.values(schedulesByCareerAndSemester).forEach(schedule => {
-      const timeSlot = schedule.find(slot => slot.time === time);
-      if (timeSlot) {
-        dayKeys.forEach(dayKey => {
-          const course = timeSlot[dayKey] as ScheduledCourse;
-          if (course?.selectedTeacher) {
-            occupiedTeachers.add(course.selectedTeacher);
-          }
-        });
-      }
-    });
-
-    console.log(`⏰ Profesores ocupados en tiempo ${time}:`, Array.from(occupiedTeachers));
-
-    // Filtrar profesores que no estén ocupados en este horario
-    finalAvailableProfessors = filteredTeachers.filter(teacher => 
-      !occupiedTeachers.has(teacher.rut)
-    );
-    
-    console.log(`🎯 Profesores finales disponibles en ${time}: ${finalAvailableProfessors.length}`);
-  }
-  
-  return finalAvailableProfessors;
-};
-  
+  // Función para limpiar el horario del semestre actual
   const clearAllSchedule = () => {
     if (!selectedSemester || !selectedCareer) return;
-
-    const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
-    setSchedulesByCareerAndSemester((prevSchedules) => ({
-      ...prevSchedules,
-      [scheduleKey]: defaultTimeSlots.map((slot) => ({ ...slot })),
-    }));
-  };  // Función para exportar horarios a Excel
-  const exportSchedules = async () => {
-    if (Object.keys(schedulesByCareerAndSemester).length === 0) {
-      console.warn("No hay horarios para exportar");
-      return;
-    }
-
-    // Crear un nuevo libro de trabajo
-    const workbook = new ExcelJS.Workbook();
-
-    // Iterar sobre cada carrera-semestre y crear una hoja
-    Object.entries(schedulesByCareerAndSemester).forEach(([careerSemester, schedule]) => {
-      const worksheet = workbook.addWorksheet(careerSemester);
-      
-      // Agregar encabezados
-      const headers = ['Horario', ...days];
-      worksheet.addRow(headers);
-
-      // Agregar cada fila de horario
-      schedule.forEach((slot) => {
-        const row: (string | number)[] = [slot.time];
-        
-        dayKeys.forEach((dayKey) => {
-          const course = getCellContent(slot, dayKey);
-          if (course) {
-            // Formato: Nombre del curso (Código)
-            row.push(`${course.name} (${course.code})`);
-          } else {
-            row.push('');
-          }
-        });
-        
-        worksheet.addRow(row);
-      });
-
-      // Ajustar el ancho de las columnas
-      worksheet.getColumn(1).width = 15; // Horario
-      for (let i = 2; i <= days.length + 1; i++) {
-        worksheet.getColumn(i).width = 40; // Días de la semana
-      }
-    });
-
-    // Crear una hoja de resumen
-    const summaryWorksheet = workbook.addWorksheet('Resumen');
-    summaryWorksheet.addRow(['Resumen de Horarios por Carrera y Semestre']);
-    summaryWorksheet.addRow(['']); // Línea vacía
-    summaryWorksheet.addRow(['Carrera-Semestre', 'Total Cursos', 'Bloques Ocupados', 'Total Bloques', 'Utilización']);
-
-    Object.entries(schedulesByCareerAndSemester).forEach(([careerSemester, schedule]) => {
-      const totalCourses = schedule.reduce((count, slot) => {
-        return count + dayKeys.filter(day => getCellContent(slot, day)).length;
-      }, 0);
-      
-      const totalBlocks = schedule.length * days.length;
-      const utilization = Math.round((totalCourses / totalBlocks) * 100);
-      
-      summaryWorksheet.addRow([
-        careerSemester,
-        totalCourses,
-        totalCourses,
-        totalBlocks,
-        `${utilization}%`
-      ]);
-    });
-
-    // Ajustar columnas del resumen
-    summaryWorksheet.getColumn(1).width = 20;
-    summaryWorksheet.getColumn(2).width = 15;
-    summaryWorksheet.getColumn(3).width = 18;
-    summaryWorksheet.getColumn(4).width = 15;
-    summaryWorksheet.getColumn(5).width = 12;
-
-    // Exportar el archivo
-    const fileName = `horarios-por-carrera-semestre-${new Date().toISOString().split('T')[0]}.xlsx`;
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(url);
     
-    console.log(`Horarios exportados a ${fileName}`);
+    if (confirm(`¿Está seguro de que desea limpiar todo el horario del semestre ${selectedSemester} de ${selectedCareer}?`)) {
+      const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
+      setSchedulesByCareerAndSemester((prevSchedules) => {
+        const newSchedules = { ...prevSchedules };
+        delete newSchedules[scheduleKey];
+        return newSchedules;
+      });
+      console.log(`Horario del semestre ${selectedSemester} de ${selectedCareer} limpiado`);
+    }
   };
-  // Función para exportar horarios a JSON
+
+  // Función para limpiar toda la caché
+  const clearAllCache = () => {
+    if (confirm("¿Está seguro de que desea eliminar TODOS los horarios guardados? Esta acción no se puede deshacer.")) {
+      setSchedulesByCareerAndSemester({});
+      localStorage.removeItem("schedulesByCareerAndSemester");
+      console.log("Toda la caché de horarios ha sido eliminada");
+    }
+  };
+
+  // Función para exportar horarios como JSON
   const exportSchedulesJSON = () => {
     if (Object.keys(schedulesByCareerAndSemester).length === 0) {
-      console.warn("No hay horarios para exportar");
+      alert("No hay horarios para exportar");
       return;
     }
 
     const dataStr = JSON.stringify(schedulesByCareerAndSemester, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    const fileName = `horarios-por-carrera-semestre-${new Date().toISOString().split('T')[0]}.json`;
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(url);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    console.log(`Horarios exportados a ${fileName}`);
-  };
-  // Función para limpiar todo el cache
-  const clearAllCache = () => {
-    const isConfirmed = window.confirm(
-      "¿Estás seguro de que quieres limpiar todo el cache?\n\n" +
-      "Esto eliminará:\n" +
-      "• Todos los horarios guardados\n" +
-      "• Todas las asignaciones de profesores\n" +
-      "• Todas las asignaciones de salas\n\n" +
-      "Esta acción no se puede deshacer."
-    );
+    const exportFileDefaultName = `horarios_${new Date().toISOString().split('T')[0]}.json`;
     
-    if (isConfirmed) {
-      // Limpiar localStorage
-      localStorage.removeItem("schedulesByCareerAndSemester");
-      
-      // Reset del estado
-      setSchedulesByCareerAndSemester({});
-      setSelectedCareer("");
-      setSelectedSemester("");
-      setSearchTerm("");
-      setShowPreviousSemesters(["semestre-1", "semestre-2"]);
-      
-      console.log("✅ Cache completamente limpiado");
-      
-      // Mostrar confirmación visual
-      const toast = document.createElement('div');
-      toast.textContent = '🗑️ Cache limpiado exitosamente';
-      toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ef4444;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 500;
-        z-index: 9999;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-      `;
-      
-      document.body.appendChild(toast);
-      
-      setTimeout(() => {
-        toast.style.transform = 'translateX(0)';
-      }, 10);
-      
-      setTimeout(() => {
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-          document.body.removeChild(toast);
-        }, 300);
-      }, 3000);
-    }
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
   };
 
-  // Función para importar horarios
-  const importSchedules = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Función para importar horarios desde JSON
+  const importSchedules = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const imported = JSON.parse(e.target?.result as string);
-        setSchedulesByCareerAndSemester(imported);
+        const importedData = JSON.parse(e.target?.result as string);
+        setSchedulesByCareerAndSemester(importedData);
         console.log("Horarios importados exitosamente");
+        alert("Horarios importados exitosamente");
       } catch (error) {
         console.error("Error al importar horarios:", error);
+        alert("Error al importar horarios. Verifique que el archivo sea válido.");
       }
     };
     reader.readAsText(file);
+    
+    // Limpiar el input
+    event.target.value = '';
   };
 
-  // ...existing code...
+  // Función para exportar horarios a Excel
+  const exportSchedules = async () => {
+    if (Object.keys(schedulesByCareerAndSemester).length === 0) {
+      alert("No hay horarios para exportar");
+      return;
+    }
+
+    // Crear una representación simplificada para exportar
+    const exportData: any = {};
+    Object.entries(schedulesByCareerAndSemester).forEach(([careerSemester, schedule]) => {
+      const simplifiedSchedule: any = {};
+      schedule.forEach((slot) => {
+        const row: any = {};
+        dayKeys.forEach((dayKey) => {
+          const course = getCellContent(slot, dayKey);
+          if (course) {
+            row[dayKey] = `${course.name} (${course.code})${course.paralelo ? ` - ${course.paralelo}` : ''}`;
+          }
+        });
+        if (Object.keys(row).length > 0) {
+          simplifiedSchedule[slot.time] = row;
+        }
+      });
+      exportData[careerSemester] = simplifiedSchedule;
+    });
+
+    // Crear archivo de texto simple (ya que ExcelJS no está disponible)
+    let content = "HORARIOS EXPORTADOS\n";
+    content += "===================\n\n";
+
+    Object.entries(exportData).forEach(([careerSemester, scheduleData]) => {
+      content += `${careerSemester}\n`;
+      content += "-".repeat(careerSemester.length) + "\n";
+      
+      Object.entries(scheduleData as any).forEach(([time, dayData]) => {
+        content += `${time}:\n`;
+        Object.entries(dayData as any).forEach(([day, course]) => {
+          content += `  ${day}: ${course}\n`;
+        });
+        content += "\n";
+      });
+      content += "\n";
+    });
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `horarios_${new Date().toISOString().split('T')[0]}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Función para obtener asignaturas únicas del semestre y carrera seleccionados
+  const getUniqueSubjects = () => {
+    if (!selectedCareer || !selectedSemester) return [];
+    
+    const subjectsMap = new Map();
+    
+    courses
+      .filter((course: Course) => 
+        course.career === selectedCareer && 
+        course.semester.toString() === selectedSemester
+      )
+      .forEach((course: Course) => {
+        const key = `${course.code}-${course.name}`;
+        if (!subjectsMap.has(key)) {
+          subjectsMap.set(key, {
+            code: course.code,
+            name: course.name,
+            career: course.career,
+            semester: course.semester,
+            demand: course.demand,
+            suggestedRoom: course.suggestedRoom,
+            isLocked: course.isLocked,
+            isPreAssigned: course.isPreAssigned
+          });
+        }
+      });
+    
+    return Array.from(subjectsMap.values());
+  };
+
+  // Función para obtener el siguiente paralelo disponible (C2, C3, etc.)
+  const getNextAvailableParalelo = (subjectCode: string) => {
+    const existingParalelos = courses
+      .filter((course: Course) => 
+        course.code === subjectCode &&
+        course.career === selectedCareer &&
+        course.semester.toString() === selectedSemester
+      )
+      .map((course: Course) => course.paralelo || "C1")
+      .sort();
+    
+    let nextNumber = 1;
+    while (existingParalelos.includes(`C${nextNumber}`)) {
+      nextNumber++;
+    }
+    
+    return `C${nextNumber}`;
+  };
+
+  // Función para crear un nuevo paralelo
+  const createNewParalelo = (selectedSubject: any, paraleloName?: string) => {
+    if (!selectedSubject) return;
+    
+    const newParalelo = paraleloName || getNextAvailableParalelo(selectedSubject.code);
+    
+    // Buscar el curso original para copiar sus propiedades
+    const originalCourse = courses.find((course: Course) => 
+      course.code === selectedSubject.code &&
+      course.career === selectedCareer &&
+      course.semester.toString() === selectedSemester
+    );
+    
+    if (!originalCourse) return;
+    
+    // Crear nuevo curso con el paralelo
+    const newCourse: Course = {
+      ...originalCourse,
+      key: `${originalCourse.code}-${paraleloName || newParalelo}-${Date.now()}`, // Generar key único
+      paralelo: paraleloName || newParalelo
+    };
+    
+    // Agregar el nuevo curso a la lista
+    setCourses((prevCourses: Course[]) => [...prevCourses, newCourse]);
+    
+    console.log(`Nuevo paralelo creado: ${newCourse.name} - ${newCourse.paralelo}`);
+  };
+
+  // Función para manejar la selección de asignatura para crear paralelo
+  const handleCreateParaleloForSubject = (subject: any) => {
+    const newParalelo = getNextAvailableParalelo(subject.code);
+    createNewParalelo(subject, newParalelo);
+    setShowCreateParaleloModal(false);
+  };
+
+  // Función para obtener el color del curso
+  const getCourseColor = (courseCode: string) => {
+    const prefix = courseCode.substring(0, 4);
+    return colorsByPrefix[prefix as keyof typeof colorsByPrefix] || 
+           "bg-gray-100 dark:bg-gray-900/30 border-gray-300 dark:border-gray-700";
+  };
+
+  // Función para obtener salas disponibles para un horario específico
+  const getAvailableRooms = (time: string) => {
+    // Obtener todas las salas disponibles que no están ocupadas en este horario
+    const currentSchedule = getCurrentSchedule();
+    const occupiedRooms = new Set<string>();
+    
+    // Encontrar qué salas están ocupadas en este horario
+    currentSchedule.forEach((slot) => {
+      if (slot.time === time) {
+        dayKeys.forEach((dayKey) => {
+          const content = getCellContent(slot, dayKey);
+          if (content && content.selectedRoom) {
+            occupiedRooms.add(content.selectedRoom);
+          }
+        });
+      }
+    });
+    
+    // Retornar salas que no están ocupadas
+    return classrooms.filter(room => !occupiedRooms.has(room.nombre));
+  };
+
+  // Función para actualizar la sala seleccionada de un curso en el horario
+  const updateSelectedRoom = (time: string, day: keyof Omit<TimeSlot, "time">, roomName: string) => {
+    if (!selectedSemester || !selectedCareer) return;
+
+    const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
+    setSchedulesByCareerAndSemester((prevSchedules) => {
+      const currentSchedule = prevSchedules[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
+      
+      return {
+        ...prevSchedules,
+        [scheduleKey]: currentSchedule.map((slot) =>
+          slot.time === time
+            ? {
+                ...slot,
+                [day]: slot[day] ? { ...slot[day], selectedRoom: roomName } : null,
+              }
+            : slot
+        ),
+      };
+    });
+  };
+
+  // Función para actualizar el profesor seleccionado de un curso en el horario
+  const updateSelectedTeacher = (time: string, day: keyof Omit<TimeSlot, "time">, teacherRut: string) => {
+    if (!selectedSemester || !selectedCareer) return;
+
+    const scheduleKey = getScheduleKey(selectedCareer, selectedSemester);
+    setSchedulesByCareerAndSemester((prevSchedules) => {
+      const currentSchedule = prevSchedules[scheduleKey] || defaultTimeSlots.map((slot) => ({ ...slot }));
+      
+      return {
+        ...prevSchedules,
+        [scheduleKey]: currentSchedule.map((slot) =>
+          slot.time === time
+            ? {
+                ...slot,
+                [day]: slot[day] ? { ...slot[day], selectedTeacher: teacherRut } : null,
+              }
+            : slot
+        ),
+      };
+    });
+  };
+
+  // Función para obtener profesores disponibles
+  const getAvailableTeachers = (courseCode: string, career: string, time: string, dayKey: string, showAllOptions?: {[key: string]: boolean}) => {
+    const cellKey = `${time}-${dayKey}`;
+    const showAll = showAllOptions?.[cellKey] || false;
+    
+    console.log(`🔍 Dropdown Teachers - Curso: ${courseCode}, Celda: ${cellKey}, ShowAll: ${showAll}`);
+    console.log(`📊 Total profesores: ${teachers.length}, Disponibles: ${teachers.filter(t => t.isAvailable).length}`);
+    console.log(`📋 Lista de profesores para dropdown:`, teachers.filter(t => showAll || t.isAvailable).map(t => `${t.name} (${t.rut}) - ${t.isAvailable ? 'Disponible' : 'No disponible'}`));
+    
+    // Filtrar profesores según la configuración
+    let availableTeachers = teachers.filter(teacher => {
+      // Si showAll está activado, mostrar todos los profesores
+      if (showAll) {
+        return true;
+      }
+      // Si no, solo mostrar los disponibles
+      return teacher.isAvailable;
+    });
+
+    return availableTeachers;
+  };
+
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       collisionDetection={closestCorners}
-    >      <div className="flex h-screen w-full">        {/* Panel lateral izquierdo - Lista de cursos */}
+    >
+      <div className="flex h-screen w-full">
+        {/* Panel lateral izquierdo - Lista de cursos */}
         <div className="w-80 border-r bg-card p-4 flex-shrink-0">
           <div className="space-y-4">
             <div>
@@ -901,39 +920,75 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
                     </p>
                   </div>                ) : (
                   filteredCourses.map((course) => (
-                    <Draggable
-                      key={course.key}
-                      id={course.key}
-                      data={{ course }}
-                      className="block"
-                    >
-                      <div
-                        className={`p-3 border rounded-lg hover:bg-accent transition-colors cursor-grab active:cursor-grabbing ${getCourseColor(
-                          course.code
-                        )}`}
+                    <div key={course.key} className="relative group">
+                      <Draggable
+                        id={course.key}
+                        data={{ course }}
+                        className="block"
                       >
-                        <div className="font-medium text-sm break-words">
-                          {course.name}
+                        <div
+                          className={`p-3 border rounded-lg hover:bg-accent transition-colors cursor-grab active:cursor-grabbing ${getCourseColor(
+                            course.code
+                          )}`}
+                        >
+                          <div className="font-medium text-sm break-words">
+                            {course.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {course.code}
+                          </div>
+                          <div className="flex items-center gap-1 mt-1 text-xs">
+                            <Users className="h-3 w-3" />
+                            <span>Demanda: {course.demand}</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {course.career}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              Sem. {course.semester}
+                            </Badge>
+                            {course.paralelo && (
+                              <Badge variant="default" className="text-xs">
+                                {course.paralelo}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {course.code}
-                        </div>
-                        <div className="flex items-center gap-1 mt-1 text-xs">
-                          <Users className="h-3 w-3" />
-                          <span>Demanda: {course.demand}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {course.career}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Sem. {course.semester}
-                          </Badge>
-                        </div>
-                      </div>
-                    </Draggable>
+                      </Draggable>
+                      
+                      {/* Botón de eliminar - Solo para paralelos diferentes a C1 */}
+                      {course.paralelo && course.paralelo !== "C1" && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteParalelo(course.key, course.paralelo);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   ))
                 )}</div>            </div>
+            
+            {/* Botón Crear nuevo paralelo - Solo mostrar cuando hay carrera y semestre seleccionados */}
+            {selectedCareer && selectedSemester && (
+              <div className="mt-4 pt-4 border-t">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setShowCreateParaleloModal(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crear nuevo paralelo
+                </Button>
+              </div>
+            )}
             
             <div className="mt-6 pt-4 border-t">
               <Button
@@ -1187,7 +1242,7 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
                                               className="font-semibold text-foreground truncate text-[10px]"
                                               title={bgContent.name}
                                             >
-                                              {bgContent.name}
+                                              {bgContent.name} {bgContent.paralelo && `(${bgContent.paralelo})`}
                                             </div>
                                             <div className="text-[8px] text-muted-foreground flex items-center justify-between mt-0.5">
                                               <span className="truncate font-mono">
@@ -1223,7 +1278,7 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
                                             className="font-bold text-foreground truncate text-base"
                                             title={content.name}
                                           >
-                                            {content.name}
+                                            {content.name} {content.paralelo && `(${content.paralelo})`}
                                           </div>
                                           <div className="text-sm text-muted-foreground mt-1 font-mono">
                                             {content.code}
@@ -1322,7 +1377,7 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
                                                 >
                                                   {content.selectedTeacher ? (
                                                     (() => {
-                                                      const teacher = getAvailableTeachers(content.code, content.career, slot.time, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
+                                                      const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
                                                       return teacher ? teacher.name : content.selectedTeacher;
                                                     })()
                                                   ) : "Seleccionar profesor"}
@@ -1347,95 +1402,66 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
                                                           console.log(`🔄 Toggle profesores para ${key}: ${checked ? 'Mostrar todos' : 'Solo disponibles'}`);
                                                         }}
                                                       />
-                                                      <Label 
-                                                        htmlFor={`show-all-teachers-${slot.time}-${dayKey}`}
-                                                        className="text-xs font-medium cursor-pointer"
-                                                      >
-                                                        Mostrar todos los profesores
+                                                      <Label htmlFor={`show-all-teachers-${slot.time}-${dayKey}`} className="text-xs cursor-pointer">
+                                                        {showAllTeachers[`${slot.time}-${dayKey}`] ? 'Mostrar todos' : 'Solo disponibles'}
                                                       </Label>
-                                                    </div>
-                                                    <div className="text-[10px] text-muted-foreground mt-1">
-                                                      {showAllTeachers[`${slot.time}-${dayKey}`] ? 
-                                                        'Incluye profesores no disponibles' : 
-                                                        'Solo profesores disponibles'
-                                                      }
                                                     </div>
                                                   </div>
                                                   <CommandGroup className="max-h-48 overflow-auto">
-                                                    {(() => {
-                                                      const showAll = showAllTeachers[`${slot.time}-${dayKey}`] || false;
-                                                      const availableTeachers = getAvailableTeachers(content.code, content.career, slot.time, showAll);
-                                                      
-                                                      console.log(`🔍 Dropdown Teachers - Curso: ${content.code}, Mostrar todos: ${showAll}`);
-                                                      console.log(`📊 Total profesores:`, teachers.length);
-                                                      console.log(`📋 Profesores mostrados:`, availableTeachers.length);
-                                                      console.log(`� Lista de profesores para dropdown:`, availableTeachers.map(t => `${t.name} (${t.rut}) ${t.isAvailable ? '✅' : '❌'}`));
-                                                      
-                                                      return availableTeachers.map((teacher) => (
-                                                        <CommandItem
-                                                          key={teacher.rut}
-                                                          onSelect={() => {
-                                                            console.log(`✅ Profesor seleccionado: ${teacher.name} (${teacher.rut})`);
-                                                            updateSelectedTeacher(slot.time, dayKey, teacher.rut);
-                                                            setOpenTeacherPopover(null);
-                                                          }}
-                                                          className="cursor-pointer"
-                                                        >
-                                                          <Check
-                                                            className={`mr-2 h-3 w-3 ${
-                                                              content.selectedTeacher === teacher.rut ? "opacity-100" : "opacity-0"
-                                                            }`}
-                                                          />
-                                                          <div className="text-xs">
-                                                            <div className="font-medium flex items-center gap-2">
-                                                              {teacher.name}
-                                                              {showAll && (
-                                                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                                                                  teacher.isAvailable 
-                                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                                                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                                                }`}>
-                                                                  {teacher.isAvailable ? '✓ Disponible' : '✗ No disponible'}
-                                                                </span>
-                                                              )}
-                                                            </div>
-                                                            <div className="text-muted-foreground text-[10px]">
-                                                              {teacher.rut}
-                                                            </div>
+                                                    {getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).map((teacher) => (
+                                                      <CommandItem
+                                                        key={teacher.rut}
+                                                        onSelect={() => {
+                                                          updateSelectedTeacher(slot.time, dayKey, teacher.rut);
+                                                          setOpenTeacherPopover(null);
+                                                        }}
+                                                        className="cursor-pointer"
+                                                      >
+                                                        <Check
+                                                          className={`mr-2 h-3 w-3 ${
+                                                            content.selectedTeacher === teacher.rut ? "opacity-100" : "opacity-0"
+                                                          }`}
+                                                        />
+                                                        <div className="text-xs">
+                                                          <div className="font-medium">{teacher.name}</div>
+                                                          <div className="text-muted-foreground text-[10px]">
+                                                            {teacher.rut} • {teacher.isAvailable ? 'Disponible' : 'No disponible'}
                                                           </div>
-                                                        </CommandItem>
-                                                      ));
-                                                    })()}
+                                                        </div>
+                                                      </CommandItem>
+                                                    ))}
                                                   </CommandGroup>
                                                 </Command>
                                               </PopoverContent>
                                             </Popover>
                                           </div>
+                                          
+                                          {/* Botón de eliminar curso */}
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              removeCourseFromSchedule(content.key);
+                                            }}
+                                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                          >
+                                            <X className="h-3 w-3" />
+                                          </button>
                                         </div>
                                       </div>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          removeCourseFromSchedule(
-                                            slot.time,
-                                            dayKey
-                                          );
-                                        }}
-                                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                      >
-                                        <X className="h-3 w-3" />
-                                      </button>
                                     </div>
                                   ) : (
                                     // Solo mostrar placeholder si no hay cursos de fondo o curso actual
-                                    !backgroundSchedules.some((bg) => {
+                                    backgroundSchedules.every((bg) => {
                                       const bgSlot = bg.schedule.find(
                                         (s) => s.time === slot.time
                                       );
-                                      return bgSlot
-                                        ? getCellContent(bgSlot, dayKey)
-                                        : false;
-                                    })
+                                      const bgContent = bgSlot ? getCellContent(bgSlot, dayKey) : null;
+                                      return !bgContent;
+                                    }) ? (
+                                      <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
+                                        Arrastra un curso aquí
+                                      </div>
+                                    ) : null
                                   )}
                                 </Droppable>
                               </div>
@@ -1531,7 +1557,7 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
               activeCourse.code
             )}`}
           >            <div className="font-medium text-sm text-foreground">
-              {activeCourse.name}
+              {activeCourse.name} {activeCourse.paralelo && `(${activeCourse.paralelo})`}
             </div><div className="text-xs text-muted-foreground mt-1">
               {activeCourse.code}
             </div>
@@ -1542,10 +1568,58 @@ const getAvailableTeachers = (courseCode: string, career: string, time?: string,
               <Badge variant="outline" className="text-xs">
                 Sem. {activeCourse.semester}
               </Badge>
+              {activeCourse.paralelo && (
+                <Badge variant="default" className="text-xs">
+                  {activeCourse.paralelo}
+                </Badge>
+              )}
             </div>
           </div>
         )}
       </DragOverlay>
+      
+      {/* Modal para crear nuevo paralelo */}
+      {showCreateParaleloModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Crear Nuevo Paralelo</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Selecciona la asignatura para crear un nuevo paralelo:
+            </p>
+            
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {getUniqueSubjects().map((subject) => {
+                const nextParalelo = getNextAvailableParalelo(subject.code);
+                return (
+                  <Button
+                    key={`${subject.code}-${subject.name}`}
+                    variant="outline"
+                    className="w-full justify-start text-left"
+                    onClick={() => handleCreateParaleloForSubject(subject)}
+                  >
+                    <div>
+                      <div className="font-medium">{subject.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {subject.code} - Crear {nextParalelo}
+                      </div>
+                    </div>
+                  </Button>
+                );
+              })}
+            </div>
+            
+            <div className="flex gap-2 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowCreateParaleloModal(false)}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </DndContext>
   );
 }
