@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, BookOpen, Calendar, Building } from 'lucide-react'
 import type { Teacher, Course, Classroom } from '@/lib/types'
-import teachersData from '@/lib/teachers.json'
 import coursesData from '@/lib/courses.json'
-import classroomsData from '@/lib/classrooms.json'
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -13,34 +11,109 @@ export default function Dashboard() {
     totalCourses: 0,
     totalClassrooms: 0,
     totalDemand: 0,
-    loading: true
+    loading: true,
+    teachersFromAPI: false,
+    coursesFromAPI: false,
+    classroomsFromAPI: false
   })
 
   useEffect(() => {
-    // Simular carga de datos y calcular estadísticas
-    setTimeout(() => {
-      const teachers = teachersData as Teacher[]
-      const courses = coursesData as Course[]
-      const classrooms = classroomsData as Classroom[]
+    const loadData = async () => {
+      try {
+        console.log("🔄 Dashboard - Iniciando carga de datos desde API...");
+        
+        // Cargar profesores desde la API
+        console.log("📡 Fetch profesores: http://localhost:3000/profesores");
+        const teachersResponse = await fetch('http://localhost:3000/profesores');
+        let teachers: Teacher[] = [];
+        
+        if (teachersResponse.ok) {
+          teachers = await teachersResponse.json();
+          console.log("✅ Profesores cargados desde API:", teachers.length);
+        } else {
+          console.error("❌ Error al cargar profesores desde API. Status:", teachersResponse.status);
+          teachers = [];
+        }
 
-      console.log('Dashboard data loaded:', {
-        teachers: teachers.length,
-        courses: courses.length,
-        classrooms: classrooms.length
-      })
+        // Cargar cursos/asignaturas desde la API
+        console.log("📡 Fetch asignaturas: http://localhost:3000/asignaturas");
+        const coursesResponse = await fetch('http://localhost:3000/asignaturas');
+        let courses: any[] = [];
+        
+        if (coursesResponse.ok) {
+          courses = await coursesResponse.json();
+          console.log("✅ Asignaturas cargadas desde API:", courses.length);
+        } else {
+          console.error("❌ Error al cargar asignaturas desde API. Status:", coursesResponse.status);
+          // Fallback a datos estáticos si la API no está disponible
+          courses = coursesData as Course[];
+          console.log("📚 Fallback: usando datos estáticos de cursos:", courses.length);
+        }
 
-      const availableTeachers = teachers.filter(teacher => teacher.isAvailable).length
-      const totalDemand = courses.reduce((sum, course) => sum + course.demand, 0)
+        // Cargar salas desde la API
+        console.log("📡 Fetch salas: http://localhost:3000/salas");
+        const classroomsResponse = await fetch('http://localhost:3000/salas');
+        let classrooms: Classroom[] = [];
+        
+        if (classroomsResponse.ok) {
+          classrooms = await classroomsResponse.json();
+          console.log("✅ Salas cargadas desde API:", classrooms.length);
+        } else {
+          console.error("❌ Error al cargar salas desde API. Status:", classroomsResponse.status);
+          classrooms = [];
+        }
 
-      setStats({
-        totalTeachers: teachers.length,
-        availableTeachers,
-        totalCourses: courses.length,
-        totalClassrooms: classrooms.length,
-        totalDemand,
-        loading: false
-      })
-    }, 500)
+        console.log('📊 Dashboard data loaded:', {
+          teachers: teachers.length,
+          courses: courses.length,
+          classrooms: classrooms.length
+        });
+
+        const availableTeachers = teachers.filter(teacher => teacher.isAvailable).length;
+        const totalDemand = courses.reduce((sum, course) => sum + (course.demand || 0), 0);
+
+        setStats({
+          totalTeachers: teachers.length,
+          availableTeachers,
+          totalCourses: courses.length,
+          totalClassrooms: classrooms.length,
+          totalDemand,
+          loading: false,
+          teachersFromAPI: teachersResponse.ok,
+          coursesFromAPI: coursesResponse.ok,
+          classroomsFromAPI: classroomsResponse.ok
+        });
+
+        console.log("✅ Dashboard stats calculadas:", {
+          totalTeachers: teachers.length,
+          availableTeachers,
+          totalCourses: courses.length,
+          totalClassrooms: classrooms.length,
+          totalDemand
+        });
+
+      } catch (error) {
+        console.error("❌ Error al cargar datos del dashboard:", error);
+        
+        // Fallback a datos estáticos en caso de error
+        const courses = coursesData as Course[];
+        
+        setStats({
+          totalTeachers: 0,
+          availableTeachers: 0,
+          totalCourses: courses.length,
+          totalClassrooms: 0,
+          totalDemand: courses.reduce((sum, course) => sum + (course.demand || 0), 0),
+          loading: false,
+          teachersFromAPI: false,
+          coursesFromAPI: false,
+          classroomsFromAPI: false
+        });
+      }
+    };
+
+    // Simular un pequeño delay para mostrar el estado de carga
+    setTimeout(loadData, 500);
   }, [])
   return (
     <div className="h-full w-full flex flex-col bg-background">
@@ -65,7 +138,11 @@ export default function Dashboard() {
               )}
               {!stats.loading && (
                 <p className="text-xs text-muted-foreground">
-                  {stats.availableTeachers} disponibles
+                  {stats.availableTeachers} disponibles 
+                  {stats.teachersFromAPI ? 
+                    <span className="ml-1 text-green-600">• API</span> : 
+                    <span className="ml-1 text-orange-600">• Local</span>
+                  }
                 </p>
               )}
             </div>
@@ -85,6 +162,10 @@ export default function Dashboard() {
               {!stats.loading && (
                 <p className="text-xs text-muted-foreground">
                   {stats.totalDemand} estudiantes
+                  {stats.coursesFromAPI ? 
+                    <span className="ml-1 text-green-600">• API</span> : 
+                    <span className="ml-1 text-orange-600">• Local</span>
+                  }
                 </p>
               )}
             </div>
@@ -103,6 +184,10 @@ export default function Dashboard() {
               )}
               <p className="text-xs text-muted-foreground">
                 Múltiples sedes
+                {stats.classroomsFromAPI ? 
+                  <span className="ml-1 text-green-600">• API</span> : 
+                  <span className="ml-1 text-orange-600">• Local</span>
+                }
               </p>
             </div>
             <Building className="h-8 w-8 text-muted-foreground" />
