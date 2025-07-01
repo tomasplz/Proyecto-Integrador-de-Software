@@ -23,6 +23,7 @@ export interface Course {
   suggestedRoom: string
   code: string
   name: string
+  paralelo?: string // Nuevo campo para el paralelo (C1, C2, C3, etc.)
 }
 
 // Interfaz para un curso colocado en el horario con información adicional
