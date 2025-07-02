@@ -520,6 +520,7 @@ export default function Schedule() {
     time: string;
     day: string;
     roomName: string;
+    paraleloId?: number; // Agregar paraleloId como parámetro opcional
   }) => {
     try {
       console.log('🗑️ Eliminando asignación de horario:', params);
@@ -548,7 +549,9 @@ export default function Schedule() {
         return;
       }
 
-      const paraleloId = 1; // Este ID debería venir del curso/paralelo
+      // Usar el paraleloId real si está disponible, sino usar 1 como fallback
+      const paraleloId = params.paraleloId || 1;
+      console.log('🎯 Usando paraleloId:', paraleloId);
 
       const response = await fetch('http://localhost:3000/asignaciones-horario/by-location?' + new URLSearchParams({
         paraleloId: paraleloId.toString(),
@@ -718,7 +721,8 @@ export default function Schedule() {
               suggestedRoom: asignatura.suggestedRoom || '',
               paralelo: paralelo.nombre,
               selectedRoom: sala.nombre.replace(/^(CQB|ANF) /, ''), // Quitar prefijo para mostrar en UI
-              selectedTeacher: paralelo.profesor?.rut || undefined
+              selectedTeacher: paralelo.profesor?.rut || undefined,
+              paraleloId: paralelo.id // Agregar el ID del paralelo para poder eliminarlo después
             };
             
             // Buscar el slot correcto en el horario
@@ -1025,11 +1029,22 @@ export default function Schedule() {
     // Si encontramos el curso, eliminar de la base de datos primero
     if (courseToRemove && courseToRemove.selectedRoom) {
       try {
+        console.log('🔍 Información del curso a eliminar:', {
+          key: courseToRemove.key,
+          code: courseToRemove.code,
+          name: courseToRemove.name,
+          paralelo: courseToRemove.paralelo,
+          paraleloId: courseToRemove.paraleloId,
+          selectedRoom: courseToRemove.selectedRoom,
+          selectedTeacher: courseToRemove.selectedTeacher
+        });
+
         await removeScheduleAssignment({
           courseCode: courseToRemove.code,
           time: timeSlot,
           day: dayKey,
-          roomName: courseToRemove.selectedRoom
+          roomName: courseToRemove.selectedRoom,
+          paraleloId: courseToRemove.paraleloId // Usar el paraleloId real del curso
         });
         console.log('✅ Asignación eliminada de la base de datos');
       } catch (error) {
@@ -1037,6 +1052,8 @@ export default function Schedule() {
         // Decidir si continuar con la eliminación local o no
         // Por ahora continuamos para mantener la funcionalidad
       }
+    } else {
+      console.log('⚠️ No se puede eliminar de la BD: curso sin sala asignada o curso no encontrado');
     }
 
     // Actualizar el estado local

@@ -60,6 +60,28 @@ export class AsignacionesHorarioController {
     return this.asignacionesHorarioService.update(+id, updateAsignacionDto);
   }
 
+  // Endpoint para eliminar por paralelo, sala y bloque (útil para el drag & drop)
+  @Delete('by-location')
+  async removeByLocation(@Query() query: {
+    paraleloId: string;
+    salaNombre: string;
+    bloqueHorarioDia: string;
+    bloqueHorarioNombre: string;
+  }) {
+    console.log('🔍 removeByLocation - Query recibida:', query);
+    
+    const params = {
+      paraleloId: +query.paraleloId,
+      salaNombre: query.salaNombre,
+      bloqueHorarioDia: query.bloqueHorarioDia,
+      bloqueHorarioNombre: query.bloqueHorarioNombre
+    };
+    
+    console.log('🔍 removeByLocation - Parámetros procesados:', params);
+    
+    return this.asignacionesHorarioService.removeByLocation(params);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.asignacionesHorarioService.remove(+id);
@@ -75,22 +97,6 @@ export class AsignacionesHorarioController {
   @Get('sala/:salaId')
   async findBySala(@Param('salaId') salaId: string) {
     return this.asignacionesHorarioService.findBySala(+salaId);
-  }
-
-  // Endpoint para eliminar por paralelo, sala y bloque (útil para el drag & drop)
-  @Delete('by-location')
-  async removeByLocation(@Query() query: {
-    paraleloId: string;
-    salaNombre: string;
-    bloqueHorarioDia: string;
-    bloqueHorarioNombre: string;
-  }) {
-    return this.asignacionesHorarioService.removeByLocation({
-      paraleloId: +query.paraleloId,
-      salaNombre: query.salaNombre,
-      bloqueHorarioDia: query.bloqueHorarioDia,
-      bloqueHorarioNombre: query.bloqueHorarioNombre
-    });
   }
 
   // Endpoint para actualizar la sala de una asignación

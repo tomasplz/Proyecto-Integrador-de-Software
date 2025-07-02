@@ -307,16 +307,25 @@ export class AsignacionesHorarioService {
     bloqueHorarioNombre: string;
   }) {
     try {
+      console.log('🚀 removeByLocation - Iniciando con parámetros:', params);
+
       // Buscar la sala por nombre
       const sala = await this.prisma.sala.findUnique({
         where: { nombre: params.salaNombre }
       });
+
+      console.log('🏢 removeByLocation - Sala encontrada:', sala);
 
       if (!sala) {
         throw new BadRequestException(`Sala '${params.salaNombre}' no encontrada`);
       }
 
       // Buscar el bloque horario por día y nombre
+      console.log('🔍 removeByLocation - Buscando bloque horario con:', {
+        dia: params.bloqueHorarioDia,
+        nombre: params.bloqueHorarioNombre
+      });
+
       const bloqueHorario = await this.prisma.bloqueHorario.findUnique({
         where: {
           dia_nombre: {
@@ -326,11 +335,19 @@ export class AsignacionesHorarioService {
         }
       });
 
+      console.log('⏰ removeByLocation - Bloque horario encontrado:', bloqueHorario);
+
       if (!bloqueHorario) {
         throw new BadRequestException(`Bloque horario '${params.bloqueHorarioNombre}' del día '${params.bloqueHorarioDia}' no encontrado`);
       }
 
       // Buscar y eliminar la asignación
+      console.log('🔍 removeByLocation - Buscando asignación con:', {
+        paraleloId: params.paraleloId,
+        salaId: sala.id,
+        bloqueHorarioId: bloqueHorario.id
+      });
+
       const asignacion = await this.prisma.asignacionHorario.findFirst({
         where: {
           paraleloId: params.paraleloId,
@@ -339,15 +356,24 @@ export class AsignacionesHorarioService {
         }
       });
 
+      console.log('📝 removeByLocation - Asignación encontrada:', asignacion);
+
       if (!asignacion) {
         throw new NotFoundException('Asignación no encontrada');
       }
 
-      return this.prisma.asignacionHorario.delete({
+      console.log('🗑️ removeByLocation - Eliminando asignación con ID:', asignacion.id);
+
+      const result = await this.prisma.asignacionHorario.delete({
         where: { id: asignacion.id }
       });
 
+      console.log('✅ removeByLocation - Asignación eliminada exitosamente:', result);
+
+      return result;
+
     } catch (error) {
+      console.error('❌ removeByLocation - Error:', error);
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
       }

@@ -30,6 +30,7 @@ export interface Course {
 export interface ScheduledCourse extends Course {
   selectedRoom?: string
   selectedTeacher?: string
+  paraleloId?: number // ID del paralelo en la base de datos para poder eliminarlo
 }
 
 export interface Classroom {

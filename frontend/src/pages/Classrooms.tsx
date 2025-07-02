@@ -109,6 +109,7 @@ const API_BASE_URL = "http://localhost:3000";
 export default function Classrooms() {
   const [salas, setSalas] = useState<Sala[]>([]);
   const [asignaciones, setAsignaciones] = useState<AsignacionHorario[]>([]);
+  const [bloquesHorario, setBloquesHorario] = useState<BloqueHorario[]>([]);
   const [filteredSalas, setFilteredSalas] = useState<Sala[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -130,23 +131,33 @@ export default function Classrooms() {
       setError(null);
       
       try {
-        // Cargar salas
-        const salasResponse = await fetch(`${API_BASE_URL}/salas`);
+        // Cargar salas, asignaciones y bloques horario en paralelo
+        const [salasResponse, asignacionesResponse, bloquesResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/salas`),
+          fetch(`${API_BASE_URL}/asignaciones-horario`),
+          fetch(`${API_BASE_URL}/bloques-horario`)
+        ]);
+        
         if (!salasResponse.ok) {
           throw new Error("Error al cargar las salas");
         }
-        const salasData = await salasResponse.json();
-        
-        // Cargar asignaciones
-        const asignacionesResponse = await fetch(`${API_BASE_URL}/asignaciones-horario`);
         if (!asignacionesResponse.ok) {
           throw new Error("Error al cargar las asignaciones");
         }
-        const asignacionesData = await asignacionesResponse.json();
+        if (!bloquesResponse.ok) {
+          throw new Error("Error al cargar los bloques horario");
+        }
+        
+        const [salasData, asignacionesData, bloquesData] = await Promise.all([
+          salasResponse.json(),
+          asignacionesResponse.json(),
+          bloquesResponse.json()
+        ]);
         
         // Establecer datos en el estado
         setSalas(salasData);
         setAsignaciones(asignacionesData);
+        setBloquesHorario(bloquesData);
         
         // Ordenar las salas por ocupación desde el inicio
         const salasOrdenadas = salasData.sort((a: Sala, b: Sala) => {
@@ -300,22 +311,36 @@ export default function Classrooms() {
     if (!selectedSala) return null;
 
     const dias = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
-    const bloques = ["A", "B", "C", "D", "E", "F"];
+    
+    // Definir los bloques en el orden correcto (A hasta H)
+    const bloquesOrdenados = ['A', 'B', 'C', 'C2', 'D', 'E', 'F', 'G', 'H'];
+    
+    // Filtrar solo los bloques que existen en los datos de la API
+    const bloquesDisponibles = bloquesOrdenados.filter(bloque => 
+      bloquesHorario.some((b: BloqueHorario) => b.nombre === bloque)
+    );
 
     const getAsignacionForDayAndBlock = (dia: string, bloqueNombre: string) => {
-      return modalAsignaciones.find(asignacion => 
+      return modalAsignaciones.find((asignacion: AsignacionHorario) => 
         asignacion.bloqueHorario.dia === dia && asignacion.bloqueHorario.nombre === bloqueNombre
       );
     };
 
-    // Función para formatear la hora
-    const formatTime = (timeString: string) => {
-      const date = new Date(timeString);
-      return date.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        timeZone: 'UTC'
-      });
+    // Función para obtener las horas de un bloque específico
+    const getBlockHours = (bloqueNombre: string): string => {
+      const bloque = bloquesHorario.find((b: BloqueHorario) => b.nombre === bloqueNombre);
+      if (!bloque) return '';
+      
+      const formatTime = (timeString: string) => {
+        const date = new Date(timeString);
+        return date.toLocaleTimeString('es-ES', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          timeZone: 'UTC'
+        });
+      };
+      
+      return `${formatTime(bloque.horaInicio)}-${formatTime(bloque.horaFin)}`;
     };
 
     return (
@@ -350,12 +375,8 @@ export default function Classrooms() {
               ))}
               
               {/* Filas de bloques */}
-              {bloques.map(bloque => {
-                // Obtener las horas del primer bloque encontrado para mostrar en el header
-                const primeraAsignacionDelBloque = modalAsignaciones.find(a => a.bloqueHorario.nombre === bloque);
-                const horasBloque = primeraAsignacionDelBloque 
-                  ? `${formatTime(primeraAsignacionDelBloque.bloqueHorario.horaInicio)}-${formatTime(primeraAsignacionDelBloque.bloqueHorario.horaFin)}`
-                  : '';
+              {bloquesDisponibles.map((bloque: string) => {
+                const horasBloque = getBlockHours(bloque);
                 
                 return (
                   <div key={bloque} className="contents">
