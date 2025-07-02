@@ -599,7 +599,7 @@ export default function Schedule() {
           const mappedTeachers = teachersFromApi.map((teacher: any) => ({
             rut: teacher.rut,
             name: teacher.nombre || teacher.name,
-            isAvailable: true, // Por defecto, todos los profesores están disponibles
+            isAvailable: teacher.isAvailable === true, // Usar la disponibilidad real de la API
             maxSectionsPerWeek: teacher.maxSectionsPerWeek || 10,
             courseOffer: teacher.courseOffer || [],
             availability: teacher.availability || [],
@@ -618,6 +618,11 @@ export default function Schedule() {
           });
           
           console.log("🔍 Profesores disponibles:", mappedTeachers.filter((t: Teacher) => t.isAvailable).length);
+          console.log("🔍 Profesores NO disponibles:", mappedTeachers.filter((t: Teacher) => !t.isAvailable).length);
+          console.log("📋 Lista completa de disponibilidad:");
+          mappedTeachers.forEach((teacher: Teacher) => {
+            console.log(`   ${teacher.name} (${teacher.rut}): ${teacher.isAvailable ? '✅ Disponible' : '❌ No disponible'}`);
+          });
           setTeachers(mappedTeachers);
         } else {
           console.error("❌ Error al cargar profesores desde API. Status:", teachersResponse.status);
@@ -1498,26 +1503,56 @@ export default function Schedule() {
     });
   };
 
+  // Función para verificar si un profesor está disponible en un horario específico
+  const isTeacherAvailable = (teacherRut: string, time: string, dayKey: string): boolean => {
+    // Primero verificar si el profesor está disponible según la base de datos
+    const teacher = teachers.find((t: Teacher) => t.rut === teacherRut);
+    if (!teacher || !teacher.isAvailable) {
+      return false; // El profesor no está disponible según la BD
+    }
+    
+    // Luego verificar que no esté ya asignado en este horario en otro curso
+    return !Object.values(schedulesByCareerAndSemester).some((timeSlots: any) =>
+      timeSlots.some((slot: any) => {
+        if (slot.time !== time) return false;
+        const dayContent = slot[dayKey as keyof TimeSlot] as ScheduledCourse | null | undefined;
+        return dayContent?.selectedTeacher === teacherRut;
+      })
+    );
+  };
+
   // Función para obtener profesores disponibles
   const getAvailableTeachers = (courseCode: string, career: string, time: string, dayKey: string, showAllOptions?: {[key: string]: boolean}) => {
     const cellKey = `${time}-${dayKey}`;
     const showAll = showAllOptions?.[cellKey] || false;
     
     console.log(`🔍 Dropdown Teachers - Curso: ${courseCode}, Celda: ${cellKey}, ShowAll: ${showAll}`);
-    console.log(`📊 Total profesores: ${teachers.length}, Disponibles: ${teachers.filter(t => t.isAvailable).length}`);
-    console.log(`📋 Lista de profesores para dropdown:`, teachers.filter(t => showAll || t.isAvailable).map(t => `${t.name} (${t.rut}) - ${t.isAvailable ? 'Disponible' : 'No disponible'}`));
     
-    // Filtrar profesores según la configuración
-    let availableTeachers = teachers.filter(teacher => {
-      // Si showAll está activado, mostrar todos los profesores
-      if (showAll) {
-        return true;
-      }
-      // Si no, solo mostrar los disponibles
-      return teacher.isAvailable;
+    // Verificar disponibilidad real de cada profesor
+    const teachersWithAvailability = teachers.map((teacher: Teacher) => {
+      const isAvailable = isTeacherAvailable(teacher.rut, time, dayKey);
+      return {
+        ...teacher,
+        isAvailableForTimeSlot: isAvailable
+      };
     });
+    
+    // Filtrar según la configuración del toggle
+    let filteredTeachers;
+    if (showAll) {
+      // Mostrar todos los profesores (disponibles y no disponibles)
+      filteredTeachers = teachersWithAvailability;
+      console.log(`📋 Mostrando TODOS los profesores (${teachersWithAvailability.length})`);
+    } else {
+      // Mostrar solo los profesores disponibles
+      filteredTeachers = teachersWithAvailability.filter((teacher: Teacher & { isAvailableForTimeSlot: boolean }) => teacher.isAvailableForTimeSlot);
+      console.log(`📋 Mostrando solo profesores DISPONIBLES (${filteredTeachers.length})`);
+    }
 
-    return availableTeachers;
+    console.log(`📊 Total profesores: ${teachers.length}, Disponibles para ${cellKey}: ${teachersWithAvailability.filter((t: Teacher & { isAvailableForTimeSlot: boolean }) => t.isAvailableForTimeSlot).length}, Mostrando: ${filteredTeachers.length}`);
+    console.log(`📋 Lista de profesores para dropdown:`, filteredTeachers.map((t: Teacher & { isAvailableForTimeSlot: boolean }) => `${t.name} (${t.rut}) - ${t.isAvailableForTimeSlot ? 'Disponible' : 'No disponible'}`));
+
+    return filteredTeachers;
   };
 
   return (
@@ -2085,7 +2120,7 @@ export default function Schedule() {
                                                         <span className="truncate">
                                                           {content.selectedTeacher ? (
                                                             (() => {
-                                                              const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
+                                                              const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find((teacher: Teacher & { isAvailableForTimeSlot: boolean }) => teacher.rut === content.selectedTeacher);
                                                               return teacher ? teacher.name : content.selectedTeacher;
                                                             })()
                                                           ) : "Profesor"}
@@ -2133,7 +2168,7 @@ export default function Schedule() {
                                                             <div className="text-xs">
                                                               <div className="font-medium">{teacher.name}</div>
                                                               <div className="text-muted-foreground text-[10px]">
-                                                                {teacher.rut} • {teacher.isAvailable ? 'Disponible' : 'No disponible'}
+                                                                {teacher.rut} • {teacher.isAvailableForTimeSlot ? 'Disponible' : 'No disponible'}
                                                               </div>
                                                             </div>
                                                           </CommandItem>
@@ -2171,7 +2206,7 @@ export default function Schedule() {
                                                   <span className="text-[7px] truncate">
                                                     {content.selectedTeacher ? (
                                                       (() => {
-                                                        const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find(teacher => teacher.rut === content.selectedTeacher);
+                                                        const teacher = getAvailableTeachers(content.code, content.career, slot.time, dayKey, showAllTeachers).find((teacher: Teacher & { isAvailableForTimeSlot: boolean }) => teacher.rut === content.selectedTeacher);
                                                         return teacher ? teacher.name.substring(0, 8) : content.selectedTeacher.substring(0, 8);
                                                       })()
                                                     ) : "Prof"}
