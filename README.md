@@ -198,3 +198,6 @@ El proyecto está diseñado para ser desplegado usando Docker Compose. Para prod
 - El sistema ya permite gestión y visualización de horarios y aulas sincronizados con la base de datos real.
 - La validación de conflictos es en tiempo real y abarca todos los semestres/carreras.
 - La UI es moderna, responsiva y permite filtros avanzados y visualización detallada.
+
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tomasplz/Proyecto-Integrador-de-Software)
